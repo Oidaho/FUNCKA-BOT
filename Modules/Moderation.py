@@ -1,7 +1,6 @@
 from vkbottle.bot import Bot, BotLabeler, Message
 from vkbottle.dispatch.rules.base import CommandRule
 from typing import Tuple
-from typing import Union
 
 from Config import TOKEN
 
@@ -50,9 +49,26 @@ async def ban(message: Message, args: Tuple[str]):
 
         await message.answer(f'Но если бы бан работал, то {ban_user_info[0].first_name} был бы забанен на {time} {time_type}')
 
+        message_id = message.reply_message.conversation_message_id
+        group_id = 218730916
+        await bot.api.messages.delete(peer_id=message.peer_id, cmids=message_id, delete_for_all=True,
+                                      group_id=group_id)
+        message_id = message.conversation_message_id
+        await bot.api.messages.delete(peer_id=message.peer_id, cmids=message_id, delete_for_all=True,
+                                      group_id=group_id)
+
+
     elif message.reply_message.from_id == message.from_id:
         users_info = await bot.api.users.get(message.from_id)
         await message.reply(f'{users_info[0].first_name}, нельзя применить команду к себе.')
+
+        message_id = message.reply_message.conversation_message_id
+        group_id = 218730916
+        await bot.api.messages.delete(peer_id=message.peer_id, cmids=message_id, delete_for_all=True,
+                                      group_id=group_id)
+        message_id = message.conversation_message_id
+        await bot.api.messages.delete(peer_id=message.peer_id, cmids=message_id, delete_for_all=True,
+                                      group_id=group_id)
 
 
 @bl.chat_message(CommandRule('warn', ['!', '/'], 0))
@@ -63,6 +79,22 @@ async def warn(message: Message):
         await message.reply(f'{users_info[0].first_name}, к сожалению, команда предупреждения пока что находится в разработке')
         await message.answer(f'Но если бы предупреждение работало, то {warn_user_info[0].first_name} получил бы предупреждение')
 
+        message_id = message.reply_message.conversation_message_id
+        group_id = 218730916
+        await bot.api.messages.delete(peer_id=message.peer_id, cmids=message_id, delete_for_all=True,
+                                      group_id=group_id)
+        message_id = message.conversation_message_id
+        await bot.api.messages.delete(peer_id=message.peer_id, cmids=message_id, delete_for_all=True,
+                                      group_id=group_id)
+
     elif message.reply_message.from_id == message.from_id:
         users_info = await bot.api.users.get(message.from_id)
         await message.reply(f'{users_info[0].first_name}, нельзя применить команду к себе.')
+
+        message_id = message.reply_message.conversation_message_id
+        group_id = 218730916
+        await bot.api.messages.delete(peer_id=message.peer_id, cmids=message_id, delete_for_all=True,
+                                      group_id=group_id)
+        message_id = message.conversation_message_id
+        await bot.api.messages.delete(peer_id=message.peer_id, cmids=message_id, delete_for_all=True,
+                                      group_id=group_id)
