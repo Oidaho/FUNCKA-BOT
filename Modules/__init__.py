@@ -1,3 +1,3 @@
 from . import TrashTalkFilter, URLFilter, GroupAnswerer, Moderation
 
-labelers = [TrashTalkFilter.bl, URLFilter.bl, GroupAnswerer.bl, Moderation.bl]
+labelers = [GroupAnswerer.bl, TrashTalkFilter.bl, URLFilter.bl, Moderation.bl]
