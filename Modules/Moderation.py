@@ -16,7 +16,7 @@ ban_type = {
 }
 
 
-@bl.chat_message(CommandRule(Union['ban', ('Ban', 'бан', 'Бан')], ['!', '/'], 2))
+@bl.chat_message(CommandRule('ban', ['!', '/'], 2))
 async def ban(message: Message, args: Tuple[str]):
     if (message.reply_message is not None) and (message.reply_message.from_id != message.from_id):
         users_info = await bot.api.users.get(message.from_id)
@@ -55,7 +55,7 @@ async def ban(message: Message, args: Tuple[str]):
         await message.reply(f'{users_info[0].first_name}, нельзя применить команду к себе.')
 
 
-@bl.chat_message(CommandRule(Union['warn', ('Warn', 'варн', 'Варн')], ['!', '/'], 0))
+@bl.chat_message(CommandRule('warn', ['!', '/'], 0))
 async def warn(message: Message):
     if (message.reply_message is not None) and (message.reply_message.from_id != message.from_id):
         users_info = await bot.api.users.get(message.from_id)
