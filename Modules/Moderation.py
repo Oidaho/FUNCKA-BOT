@@ -54,16 +54,28 @@ async def ban(message: Message, args: Tuple[str]):
         message_id = message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
-        # TODO: Reply_message can be None, need to catch it. It's happening when yoy trying reply more than one message
         message_id = message.reply_message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
+        '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
+
     # if you want to ban yourself
-    elif message.reply_message.from_id == message.from_id:
+    elif (message.reply_message is not None) and (message.reply_message.from_id == message.from_id):
         users_info = await bot.api.users.get(message.from_id)
 
         title = f'@id{users_info[0].id} ({users_info[0].first_name}), ' \
                 f'нельзя применить команду к своему сообщению.'
+        await message.answer(title)
+
+        message_id = message.conversation_message_id
+        await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+
+    # if you called command with more than one replied message
+    elif message.fwd_messages and message.reply_message is None:
+        users_info = await bot.api.users.get(message.from_id)
+
+        title = f'@id{users_info[0].id} ({users_info[0].first_name}), ' \
+                f'нельзя применить команду к группе сообщений.'
         await message.answer(title)
 
         message_id = message.conversation_message_id
@@ -82,6 +94,9 @@ async def warn(message: Message):
         users_info = await bot.api.users.get(message.from_id)
         warn_users_info = await bot.api.users.get(message.reply_message.from_id)
 
+        # TODO: Make DB request to get current user's warn count
+
+        warn_count = 0
         if not warn_users_info:
             title = f'@id{warn_users_info[0].id} (Пользователь) ' \
                     f'не может быть предупреждён или не существует.'
@@ -89,7 +104,7 @@ async def warn(message: Message):
 
         else:
             title = f'@id{warn_users_info[0].id} (Пользователь) ' \
-                    f'получил предупреждение [0/3].'
+                    f'получил предупреждение [{warn_count+1}/3].'
             await message.answer(title)
 
             # TODO: Warn procedure somewhere
@@ -97,16 +112,26 @@ async def warn(message: Message):
         message_id = message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
-        # TODO: Reply_message can be None, need to catch it. It's happening when yoy trying reply more than one message
         message_id = message.reply_message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
     # if you want to warn yourself
-    elif message.reply_message.from_id == message.from_id:
+    elif (message.reply_message is not None) and (message.reply_message.from_id == message.from_id):
         users_info = await bot.api.users.get(message.from_id)
 
         title = f'@id{users_info[0].id} ({users_info[0].first_name}), ' \
                 f'нельзя применить команду к своему сообщению.'
+        await message.answer(title)
+
+        message_id = message.conversation_message_id
+        await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+
+    # if you called command with more than one replied message
+    elif message.fwd_messages and message.reply_message is None:
+        users_info = await bot.api.users.get(message.from_id)
+
+        title = f'@id{users_info[0].id} ({users_info[0].first_name}), ' \
+                f'нельзя применить команду к группе сообщений.'
         await message.answer(title)
 
         message_id = message.conversation_message_id
@@ -120,11 +145,21 @@ async def warn(message: Message):
 
 @bl.chat_message(CommandRuleCustom(ALIASES['delete'], ['!', '/'], 0))
 async def delete(message: Message):
+    # if you called command with one replied messages
     if message.reply_message is not None:
         message_id = message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
         message_id = message.reply_message.conversation_message_id
+        await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+
+    # if you called command with more than one replied messages
+    elif message.reply_message is None and message.fwd_messages is not None:
+        for msg in message.fwd_messages:
+            message_id = msg.conversation_message_id
+            await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+
+        message_id = message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
     # if you called command w\o replied message
@@ -134,10 +169,44 @@ async def delete(message: Message):
 
 
 @bl.chat_message(CommandRuleCustom(ALIASES['unban'], ['!', '/'], 0))
-async def unban(message: Message, args: Tuple[str]):
+async def unban(message: Message):
     pass
 
 
 @bl.chat_message(CommandRuleCustom(ALIASES['unwarn'], ['!', '/'], 1))
-async def unwarn(message: Message, args: Tuple[str]):
+async def unwarn(message: Message):
+    pass
+
+
+@bl.chat_message(CommandRuleCustom(ALIASES['help'], ['!', '/'], 0))
+async def help(message: Message):
+    users_info = await bot.api.users.get(message.from_id)
+
+    title = f'@id{users_info[0].id} ({users_info[0].first_name}), вот реализованый список команд: \n' \
+            f'· warn - Выдать предупреждение пользователю (in work)\n' \
+            f'· unwarn - Снять предупреждение с пользователя (in work)\n' \
+            f'· ban \'time\' \'time_type\' - Заблокировать пользователя (in work)\n' \
+            f'· unban - Разблокировать пользователя (in work)\n' \
+            f'· delete - Удалить сообщение (done)\n' \
+            f'· upperm \'n\' - Повысить уровень прав на \'n\' пунктов (in work)\n' \
+            f'· downperm \'n\' - Понизить уровень прав на \'n\' пунктов (in work)\n'
+    await message.answer(title)
+
+    title = f'Список реализованых систем:\n' \
+            f'· URL Filter (in work)\n' \
+            f'· Forbidden Filter (in work)\n' \
+            f'· Group Answerer (done)'
+    await message.answer(title)
+
+    message_id = message.conversation_message_id
+    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+
+
+@bl.chat_message(CommandRuleCustom(ALIASES['upperm'], ['!', '/'], 1))
+async def upperm(message: Message, args: Tuple[str]):
+    pass
+
+
+@bl.chat_message(CommandRuleCustom(ALIASES['downperm'], ['!', '/'], 1))
+async def downperm(message: Message, args: Tuple[str]):
     pass

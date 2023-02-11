@@ -22,3 +22,4 @@ async def check_URL(message: Message):
         message_id = message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
+        '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
