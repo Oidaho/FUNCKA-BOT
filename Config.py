@@ -11,9 +11,22 @@ GROUP = 218730916
 """
 Moderation content
 """
-ban_type = {
+BAN_TYPE = {
     'h': 'hour(s)',
     'd': 'day(s)',
     'm': 'month(s)',
     'p': 'permanent'
+}
+
+PERMISSION_LVL = {
+    '1': 'Moderator',
+    '2': 'Administrator'
+}
+
+ALIASES = {
+    'ban': ['ban', 'Ban', 'бан', 'Бан', 'блок', 'Блок'],
+    'unban': ['Unban', 'unban', 'Разбан', 'Разбан', 'Разблок', 'разблок'],
+    'warn': ['warn', 'Warn', 'варн', 'Варн', 'пред', 'Пред'],
+    'unwarn': ['unwarn', 'Unwarn', 'Разварн', 'разварн', 'Разпред', 'разпред'],
+    'delete': ['delete', 'Delete', 'Удалить', 'удалить']
 }
