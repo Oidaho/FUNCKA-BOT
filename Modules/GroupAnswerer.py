@@ -8,6 +8,8 @@ bl = BotLabeler()
 @bl.private_message(blocking=False)
 async def answer(message: Message):
     users_info = await bot.api.users.get(message.from_id)
+
+    title = f''
     await message.answer(f'{users_info[0].first_name}, нахуя вы сюда пишите?')
 
 
