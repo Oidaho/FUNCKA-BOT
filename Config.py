@@ -7,3 +7,13 @@ TOKEN = 'vk1.a.iOQcZ5g1GtS_Kj7cAYEoy8FuoeTICSg0DXGZ7H5J-f9NP4Kp9LvvzHfbLNBZ_lwhd
 Master group id
 """
 GROUP = 218730916
+
+"""
+Moderation content
+"""
+ban_type = {
+    'h': 'hour(s)',
+    'd': 'day(s)',
+    'm': 'month(s)',
+    'p': 'permanent'
+}
