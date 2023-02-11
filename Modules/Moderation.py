@@ -25,7 +25,8 @@ async def ban(message: Message, args: Tuple[str]):
         ban_users_info = await bot.api.users.get(message.reply_message.from_id)
 
         if not ban_users_info:
-            title = f'@id{users_info[0].id} ({users_info[0].first_name}), пользователь не может быть предупреждён или не существует.'
+            title = f'@id{users_info[0].id} ({users_info[0].first_name}), ' \
+                    f'пользователь не может быть предупреждён или не существует.'
             await message.answer(title)
 
         else:
@@ -53,14 +54,16 @@ async def ban(message: Message, args: Tuple[str]):
                 time = '1'
                 time_type = ban_type['d']
 
-            title = f'Пользователь @id{ban_users_info[0].id} ({ban_users_info[0].first_name}) был заблокирован на {time} {time_type}.'
+            title = f'Пользователь @id{ban_users_info[0].id} ({ban_users_info[0].first_name}) ' \
+                    f'был заблокирован на {time} {time_type}.'
             await message.answer(title)
 
-            # Ban procedure somewhere
+            # TODO: Ban procedure somewhere
 
         message_id = message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
+        # TODO: Reply_message can be None, need to catch it. It's happening when yoy trying reply more than one message
         message_id = message.reply_message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
@@ -68,12 +71,14 @@ async def ban(message: Message, args: Tuple[str]):
     elif message.reply_message.from_id == message.from_id:
         users_info = await bot.api.users.get(message.from_id)
 
-        title = f'@id{users_info[0].id} ({users_info[0].first_name}), нельзя применить команду к своему сообщению.'
+        title = f'@id{users_info[0].id} ({users_info[0].first_name}), ' \
+                f'нельзя применить команду к своему сообщению.'
         await message.answer(title)
 
         message_id = message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
+        # TODO: Reply_message can be None, need to catch it. It's happening when yoy trying reply more than one message
         message_id = message.reply_message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
@@ -86,18 +91,21 @@ async def warn(message: Message):
         warn_users_info = await bot.api.users.get(message.reply_message.from_id)
 
         if not warn_users_info:
-            title = f'@id{users_info[0].id} ({users_info[0].first_name}), пользователь не может быть предупреждён или не существует.'
+            title = f'@id{users_info[0].id} ({users_info[0].first_name}), ' \
+                    f'пользователь не может быть предупреждён или не существует.'
             await message.answer(title)
 
         else:
-            title = f'Пользователь @id{warn_users_info[0].id} ({warn_users_info[0].first_name}) получил предупреждение [0/3].'
+            title = f'Пользователь @id{warn_users_info[0].id} ({warn_users_info[0].first_name}) ' \
+                    f'получил предупреждение [0/3].'
             await message.answer(title)
 
-            # Warn procedure somewhere
+            # TODO: Warn procedure somewhere
 
         message_id = message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
+        # TODO: Reply_message can be None, need to catch it. It's happening when yoy trying reply more than one message
         message_id = message.reply_message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
@@ -105,12 +113,14 @@ async def warn(message: Message):
     elif message.reply_message.from_id == message.from_id:
         users_info = await bot.api.users.get(message.from_id)
 
-        title = f'@id{users_info[0].id} ({users_info[0].first_name}), нельзя применить команду к своему сообщению.'
+        title = f'@id{users_info[0].id} ({users_info[0].first_name}), ' \
+                f'нельзя применить команду к своему сообщению.'
         await message.answer(title)
 
         message_id = message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
+        # TODO: Reply_message can be None, need to catch it. It's happening when yoy trying reply more than one message
         message_id = message.reply_message.conversation_message_id
         await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
 
