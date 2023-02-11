@@ -18,7 +18,8 @@ async def answer(message: Message):
 
     users_info = await bot.api.users.get(message.from_id)
 
-    title = f'{users_info[0].first_name}, сейчас здесь ничего нет, но и в скором времени тоже не будет!'
+    title = f'@id{users_info[0].id} ({users_info[0].first_name}), сейчас здесь ничего нет, ' \
+            f'но и в скором времени тоже не будет!'
     await message.answer(title)
 
     title = f'Вот Вам анекдот:'
