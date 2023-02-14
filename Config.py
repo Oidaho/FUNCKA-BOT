@@ -20,7 +20,8 @@ BAN_TYPE = {
 
 PERMISSION_LVL = {
     '1': 'Moderator',
-    '2': 'Administrator'
+    '2': 'Administrator',
+    '3': 'Operator'
 }
 
 ALIASES = {
@@ -34,4 +35,3 @@ ALIASES = {
     'downperm': ['downperm', 'Downperm', 'Понизитьправа', 'понизитьправа']
 }
 
-MESSAGE_COOLDOWN = 30 * 60  # 30 minutes in seconds

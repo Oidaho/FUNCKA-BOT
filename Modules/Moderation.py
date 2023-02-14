@@ -2,8 +2,10 @@ from vkbottle.bot import Bot, BotLabeler, Message
 from typing import Tuple
 
 from Config import TOKEN, GROUP, BAN_TYPE, ALIASES
-from CustomRules import CommandRuleCustom
+from Rules.CustomRules import CommandRuleCustom
 from urlextract import URLExtract
+
+from DataBase import DataBaseTools as DBtools
 
 bot = Bot(token=TOKEN)
 bl = BotLabeler()
@@ -109,8 +111,13 @@ async def unban(message: Message, args: Tuple[str]):
     elif not args and message.reply_message is not None:
         if message.reply_message.from_id != message.from_id:
             unban_users_info = await bot.api.users.get(message.reply_message.from_id)
+            if not unban_users_info:
+                title = f'Пользователь не может быть разблокирован или не существует.'
+                await message.answer(title)
+                await self_msg_delete(message)
 
-            await call_unban_proc(message, unban_users_info)
+            else:
+                await call_unban_proc(message, unban_users_info)
 
         else:
             await alert_forbidden_to_self(message)
@@ -159,8 +166,13 @@ async def unwarn(message: Message, args: Tuple[str]):
     elif not args and message.reply_message is not None:
         if message.reply_message.from_id != message.from_id:
             unwarn_users_info = await bot.api.users.get(message.reply_message.from_id)
+            if not unwarn_users_info:
+                title = f'С пользователя не может быть снято предупреждение или он не существует.'
+                await message.answer(title)
+                await self_msg_delete(message)
 
-            await call_unwarn_proc(message, unwarn_users_info)
+            else:
+                await call_unwarn_proc(message, unwarn_users_info)
 
         else:
             await alert_forbidden_to_self(message)
@@ -210,6 +222,7 @@ async def call_ban_proc(message: Message, args: Tuple[str]):
         title = f'Пользователь ' \
                 f'не может быть заблокирован или не существует.'
         await message.answer(title)
+        await self_msg_delete(message)
 
     else:
         time = args[0]
@@ -238,124 +251,126 @@ async def call_ban_proc(message: Message, args: Tuple[str]):
 
         title = f'@id{ban_users_info[0].id} (Пользователь) ' \
                 f'был заблокирован на {time} {time_type}.'
-        await message.answer(title)
 
-        # TODO: Ban procedure somewhere
+        if time == '' and time_type == 'permanent':
+            if DBtools.add_permanent_ban(message):
+                await message.answer(title)
+                await self_msg_delete(message)
+                await rpl_msg_delete(message)
+                '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
 
-    message_id = message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id,
-                                  delete_for_all=True)
+            else:
+                await alert_already_banned(message)
 
-    message_id = message.reply_message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id,
-                                  delete_for_all=True)
+        else:
+            if DBtools.add_temp_ban(message, time, time_type):
+                await message.answer(title)
+                await self_msg_delete(message)
+                await rpl_msg_delete(message)
+                '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
 
-    '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
+            else:
+                await alert_already_banned(message)
 
 
 async def call_warn_proc(message: Message):
     warn_users_info = await bot.api.users.get(message.reply_message.from_id)
 
-    # TODO: Make DB request to get current user's warn count
-
-    warn_count = 0
     if not warn_users_info:
         title = f'Пользователь ' \
                 f'не может быть предупреждён или не существует.'
         await message.answer(title)
+        await self_msg_delete(message)
 
     else:
+        warn_count = DBtools.get_warn_count(message, message.reply_message.from_id)
+
         title = f'@id{warn_users_info[0].id} (Пользователь) ' \
                 f'получил предупреждение [{warn_count + 1}/3].'
         await message.answer(title)
 
-        # TODO: Warn procedure somewhere
+        DBtools.add_warn(message, message.reply_message.from_id, warn_count + 1)
 
-    message_id = message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+        if warn_count + 1 == 3:
+            time = '3'
+            time_type = BAN_TYPE['d']
 
-    message_id = message.reply_message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+            title = f'@id{warn_users_info[0].id} (Пользователь) ' \
+                    f'был заблокирован на {time} {time_type}.'
+
+            if DBtools.add_temp_ban(message, time, time_type):
+                await message.answer(title)
+                await self_msg_delete(message)
+                await rpl_msg_delete(message)
+                '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
+
+            else:
+                await alert_already_banned(message)
+
+        await self_msg_delete(message)
+        await rpl_msg_delete(message)
 
 
 async def call_unban_proc(message: Message, uui):
     unban_users_info = uui
     if unban_users_info:
         user_id = unban_users_info[0].id
-        print(user_id)
-
-        # TODO: make DB request to check existing user in DB
-
-        inbase = True
-        if inbase:
-
-            # TODO: make DB request to annihilate user's bans
-
-            title = f'С @id{unban_users_info[0].id} (пользователя) снята блокировка.\n' \
-                    f'Теперь он снова может зайти в беседу.'
-            await message.answer(title)
-
-            message_id = message.conversation_message_id
-            await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id,
-                                          delete_for_all=True)
+        if DBtools.remove_permanent_ban(message, user_id):
+            await alert_unbanned(message, unban_users_info)
 
         else:
-            users_info = await bot.api.users.get(message.from_id)
-
-            title = f'@id{users_info[0].id} ({users_info[0].first_name}), пользователь не найден в базе' \
-                    f' данных .'
-            await message.answer(title)
-
-            message_id = message.conversation_message_id
-            await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id,
-                                          delete_for_all=True)
+            await alert_user_not_found_DB(message)
 
     else:
-        users_info = await bot.api.users.get(message.from_id)
-
-        title = f'@id{users_info[0].id} ({users_info[0].first_name}), пользователь не найден.'
-        await message.answer(title)
-
-        message_id = message.conversation_message_id
-        await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id,
-                                      delete_for_all=True)
+        await alert_user_not_found(message)
 
 
 async def call_unwarn_proc(message: Message, uui):
     unwarn_users_info = uui
     if unwarn_users_info:
         user_id = unwarn_users_info[0].id
-        print(user_id)
 
-        # TODO: make DB request to check existing user in DB
+        warn_count = DBtools.get_warn_count(message, user_id)
 
-        inbase = True
-        if inbase:
+        if warn_count != 0:
 
-            # TODO: make DB request to get user's warns count
-
-            warn_count = 2
-
-            # TODO: Make DB request to make back-inc user's warns count
+            DBtools.remove_warn(message, user_id, warn_count)
 
             title = f'С @id{unwarn_users_info[0].id} (пользователя) снято предупреждение.\n' \
                     f'Текущее кол-во предупреждений [{warn_count - 1}/3]'
             await message.answer(title)
-
-            message_id = message.conversation_message_id
-            await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id,
-                                          delete_for_all=True)
+            await self_msg_delete(message)
 
         else:
-            users_info = await bot.api.users.get(message.from_id)
+            await alert_user_not_found_DB(message)
 
-            title = f'@id{users_info[0].id} ({users_info[0].first_name}), пользователь не найден в ' \
-                    f'базе данных.'
-            await message.answer(title)
 
-            message_id = message.conversation_message_id
-            await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id,
-                                          delete_for_all=True)
+async def alert_already_banned(message: Message):
+    ban_users_info = await bot.api.users.get(message.reply_message.from_id)
+    title = f'@id{ban_users_info[0].id} (Пользователь) уже заблокирован.'
+    await message.answer(title)
+    await self_msg_delete(message)
+
+
+async def alert_unbanned(message: Message, uui):
+    title = f'С @id{uui[0].id} (пользователя) снята блокировка.\n' \
+            f'Теперь он снова может зайти в беседу.'
+    await message.answer(title)
+    await self_msg_delete(message)
+
+
+async def alert_user_not_found_DB(message: Message):
+    users_info = await bot.api.users.get(message.from_id)
+    title = f'@id{users_info[0].id} ({users_info[0].first_name}), пользователь не найден в базе данных.'
+    await message.answer(title)
+    await self_msg_delete(message)
+
+
+async def alert_user_not_found(message: Message):
+    users_info = await bot.api.users.get(message.from_id)
+    title = f'@id{users_info[0].id} ({users_info[0].first_name}), пользователь не найден.'
+    await message.answer(title)
+    await self_msg_delete(message)
 
 
 async def alert_not_pointing_url(message: Message):
@@ -366,7 +381,8 @@ async def alert_not_pointing_url(message: Message):
     await message.answer(title)
 
     message_id = message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+    peer_id = message.peer_id
+    await bot.api.messages.delete(group_id=GROUP, peer_id=peer_id, cmids=message_id, delete_for_all=True)
 
 
 async def alert_arg_missing_url(message: Message):
@@ -376,7 +392,8 @@ async def alert_arg_missing_url(message: Message):
     await message.answer(title)
 
     message_id = message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+    peer_id = message.peer_id
+    await bot.api.messages.delete(group_id=GROUP, peer_id=peer_id, cmids=message_id, delete_for_all=True)
 
 
 async def alert_using_both_methods(message: Message):
@@ -388,7 +405,8 @@ async def alert_using_both_methods(message: Message):
     await message.answer(title)
 
     message_id = message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+    peer_id = message.peer_id
+    await bot.api.messages.delete(group_id=GROUP, peer_id=peer_id, cmids=message_id, delete_for_all=True)
 
 
 async def alert_forbidden_to_group(message: Message):
@@ -399,7 +417,8 @@ async def alert_forbidden_to_group(message: Message):
     await message.answer(title)
 
     message_id = message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+    peer_id = message.peer_id
+    await bot.api.messages.delete(group_id=GROUP, peer_id=peer_id, cmids=message_id, delete_for_all=True)
 
 
 async def alert_forbidden_to_self(message: Message):
@@ -410,22 +429,26 @@ async def alert_forbidden_to_self(message: Message):
     await message.answer(title)
 
     message_id = message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+    peer_id = message.peer_id
+    await bot.api.messages.delete(group_id=GROUP, peer_id=peer_id, cmids=message_id, delete_for_all=True)
 
 
 async def self_msg_delete(message: Message):
     message_id = message.conversation_message_id
-    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+    peer_id = message.peer_id
+    await bot.api.messages.delete(group_id=GROUP, peer_id=peer_id, cmids=message_id, delete_for_all=True)
 
 
 async def rpl_msg_delete(message: Message):
     if message.reply_message is not None:
         message_id = message.reply_message.conversation_message_id
-        await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+        peer_id = message.peer_id
+        await bot.api.messages.delete(group_id=GROUP, peer_id=peer_id, cmids=message_id, delete_for_all=True)
 
 
 async def fwd_msgs_delete(message: Message):
     if message.fwd_messages:
         for msg in message.fwd_messages:
             message_id = msg.conversation_message_id
-            await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+            peer_id = message.peer_id
+            await bot.api.messages.delete(group_id=GROUP, peer_id=peer_id, cmids=message_id, delete_for_all=True)

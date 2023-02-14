@@ -30,7 +30,15 @@ async def check_forbidden(message: Message):
 
         await msg_delete(message)
 
+        if warn_count >= 3:
+            await call_ban_proc()
+
 
 async def msg_delete(message: Message):
     message_id = message.conversation_message_id
     await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+
+
+async def call_ban_proc():
+    pass
+    # TODO: BAN

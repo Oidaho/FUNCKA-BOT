@@ -1,11 +1,11 @@
-import DataBaseTools as DBtools
+from DataBase import DataBaseTools as DBtools
 
 from vkbottle.bot import Bot
 from Config import TOKEN
 from Modules import labelers
 
 
-DBtools.check_db_is_ready()
+DBtools.check_db()
 
 
 bot = Bot(token=TOKEN)
