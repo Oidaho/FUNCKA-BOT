@@ -1,0 +1,19 @@
+{
+    "Conversations": [
+        {
+            "PeerID": 2000000002,
+            "PermanentBannedUsers": [],
+            "TempBannedUsers": [],
+            "WarnedUsers": [],
+            "Permissions": {
+                "Moderators": [],
+                "Administrators": [],
+                "Operators": []
+            },
+            "MessageCooldownQueue": {
+                "Cooldown": 0,
+                "Queue": []
+            }
+        }
+    ]
+}
