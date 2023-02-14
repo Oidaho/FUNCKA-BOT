@@ -1,26 +1,17 @@
 from typing import (
-    Any,
-    Callable,
-    Dict,
     List,
     Optional,
-    Tuple,
     Union,
 )
 
 from vkbottle import ABCRule
 
 from vkbottle.tools.dev.mini_types.base import BaseMessageMin
-from vkbottle.tools.validator import (
-    ABCValidator
-)
+
 
 DEFAULT_PREFIXES = ["!", "/"]
 DEFAULT_ALIASES = ["Command", "command"]
 STANDARD_PERMISSION = ['0']
-PayloadMap = List[Tuple[str, Union[type, Callable[[Any], bool], ABCValidator, Any]]]
-PayloadMapStrict = List[Tuple[str, ABCValidator]]
-PayloadMapDict = Dict[str, Union[dict, type]]
 
 
 class CommandRuleCustom(ABCRule[BaseMessageMin]):
@@ -38,16 +29,32 @@ class CommandRuleCustom(ABCRule[BaseMessageMin]):
         self.sep = sep
 
     async def check(self, event: BaseMessageMin) -> Union[dict, bool]:
+        text = event.text
+        if not self.args_count and self.sep in text:
+            cut = event.text.find(self.sep)
+            text = text[0:cut]
+
         for prefix in self.prefixes:
             for command_text in self.command_aliases:
                 text_length = len(prefix + command_text)
                 text_length_with_sep = text_length + len(self.sep)
-                if event.text.startswith(prefix + command_text):
-                    if not self.args_count and len(event.text) == text_length:
+                if text.startswith(prefix + command_text):
+                    if not self.args_count and len(text) == text_length:
                         return True
-                    elif self.args_count and self.sep in event.text:
-                        args = event.text[text_length_with_sep:].split(self.sep)
-                        return {"args": args} if len(args) == self.args_count and all(args) else False
+
+                    elif self.args_count and self.sep in text:
+                        args = text[text_length_with_sep:].split(self.sep)
+                        if len(args) == self.args_count and all(args):
+                            return {"args": args}
+
+                        if len(args) < self.args_count or len(args) > self.args_count and all(args):
+                            return {"args": []}
+
+                        else:
+                            return False
+
+                    elif self.args_count:
+                        return {"args": []}
         return False
 
 

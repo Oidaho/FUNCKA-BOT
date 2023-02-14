@@ -28,5 +28,9 @@ async def check_forbidden(message: Message):
                 f'@id{message.from_id} (Пользователь) получил предупреждение [{warn_count+1}/3].'
         await message.answer(title)
 
-        message_id = message.conversation_message_id
-        await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+        await msg_delete(message)
+
+
+async def msg_delete(message: Message):
+    message_id = message.conversation_message_id
+    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)

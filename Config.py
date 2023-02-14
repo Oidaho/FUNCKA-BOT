@@ -33,3 +33,5 @@ ALIASES = {
     'upperm': ['upperm', 'Upperm', 'поднятьправа', 'Поднятправа'],
     'downperm': ['downperm', 'Downperm', 'Понизитьправа', 'понизитьправа']
 }
+
+MESSAGE_COOLDOWN = 30 * 60  # 30 minutes in seconds

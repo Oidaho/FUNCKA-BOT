@@ -19,7 +19,13 @@ async def check_URL(message: Message):
 
         # TODO: 1 hour ban procedure somewhere
 
-        message_id = message.conversation_message_id
-        await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+        await msg_delete(message)
 
         '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
+
+
+async def msg_delete(message: Message):
+    message_id = message.conversation_message_id
+    await bot.api.messages.delete(group_id=GROUP, peer_id=message.peer_id, cmids=message_id, delete_for_all=True)
+
+
