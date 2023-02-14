@@ -263,7 +263,7 @@ async def call_ban_proc(message: Message, args: Tuple[str]):
                 await alert_already_banned(message)
 
         else:
-            if DBtools.add_temp_ban(message, time, time_type):
+            if DBtools.add_temp_ban(message, ban_users_info[0].id, time, time_type):
                 await message.answer(title)
                 await self_msg_delete(message)
                 await rpl_msg_delete(message)
@@ -298,7 +298,7 @@ async def call_warn_proc(message: Message):
             title = f'@id{warn_users_info[0].id} (Пользователь) ' \
                     f'был заблокирован на {time} {time_type}.'
 
-            if DBtools.add_temp_ban(message, time, time_type):
+            if DBtools.add_temp_ban(message, warn_users_info[0].id, time, time_type):
                 await message.answer(title)
                 await self_msg_delete(message)
                 await rpl_msg_delete(message)
@@ -315,8 +315,21 @@ async def call_unban_proc(message: Message, uui):
     unban_users_info = uui
     if unban_users_info:
         user_id = unban_users_info[0].id
-        if DBtools.remove_permanent_ban(message, user_id):
-            await alert_unbanned(message, unban_users_info)
+
+        ban_kind = DBtools.get_ban_kind(message, user_id)
+        if ban_kind == 'permanent':
+            if DBtools.remove_permanent_ban(message, user_id):
+                await alert_unbanned(message, unban_users_info)
+
+            else:
+                await alert_user_not_found_DB(message)
+
+        elif ban_kind == 'temp':
+            if DBtools.remove_temp_ban(message, user_id):
+                await alert_unbanned(message, unban_users_info)
+
+            else:
+                await alert_user_not_found_DB(message)
 
         else:
             await alert_user_not_found_DB(message)
