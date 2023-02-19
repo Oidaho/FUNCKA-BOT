@@ -1,17 +1,14 @@
-from vkbottle.bot import Message, Bot
+from vkbottle.bot import Message
 from json import JSONDecodeError
-from Config import TOKEN
 
 import time
 import json
 
 
-bot = Bot(token=TOKEN)
-
-
 def create_pattern():
     with open("DataBase/DB.json", "w") as write_file:
         pattern = {
+            'LogConversationID': 0,
             'Conversations': []
         }
 
@@ -42,33 +39,38 @@ def add_conversation(message: Message):
     with open("DataBase/DB.json", "r") as read_file:
         database = json.load(read_file)
 
-    inbase = False
-
     for conversation in database['Conversations']:
         if conversation['PeerID'] == message.peer_id:
-            inbase = True
+            return True
 
-    if not inbase:
-        conversation_pattern = {
-            'PeerID': message.peer_id,
-            'PermanentBannedUsers': [],
-            'TempBannedUsers': [],
-            'WarnedUsers': [],
-            'Permissions': {
-                'Moderators': [],
-                'Administrators': [],
-                'Operators': []
-            },
-            'MessageCooldownQueue': {
-                'Cooldown': 0,
-                'Queue': []
-            },
+    conversation_pattern = {
+        'PeerID': message.peer_id,
+        'Permissions': {
+            'Moderators': [],
+            'Administrators': []
+        },
+        'Settings': {
+            'Allow_Picture': True,
+            'Allow_Video': True,
+            'Allow_Music': True,
+            'Allow_Voice': True,
+            'Allow_Post': True,
+        },
+        'PermanentBannedUsers': [],
+        'TempBannedUsers': [],
+        'WarnedUsers': [],
+        'MessageCooldownQueue': {
+            'Cooldown': 0,
+            'Queue': []
         }
+    }
 
-        database['Conversations'].append(conversation_pattern)
+    database['Conversations'].append(conversation_pattern)
 
-        with open("DataBase/DB.json", "w") as write_file:
-            json.dump(database, write_file, indent=4)
+    with open("DataBase/DB.json", "w") as write_file:
+        json.dump(database, write_file, indent=4)
+
+    return False
 
 
 def add_permanent_ban(message: Message):
@@ -141,13 +143,13 @@ def add_temp_ban(message: Message, user_id, current_time, time_type):
             summary_time = int(current_time) * modify
 
             temp_ban_pattern = {
-                        'UserID': user_id,
-                        'UserURL': f'https://vk.com/id{user_id}',
-                        'BannedByID': message.from_id,
-                        'BannedByURL': f'https://vk.com/id{message.from_id}',
-                        'BanTime': epoch_time,
-                        'BanClearTime': epoch_time + summary_time
-                    }
+                'UserID': user_id,
+                'UserURL': f'https://vk.com/id{user_id}',
+                'BannedByID': message.from_id,
+                'BannedByURL': f'https://vk.com/id{message.from_id}',
+                'BanTime': epoch_time,
+                'BanClearTime': epoch_time + summary_time
+            }
 
             conversation['TempBannedUsers'].append(temp_ban_pattern)
 
@@ -180,6 +182,23 @@ def remove_temp_ban(message: Message, user_id):
     return False
 
 
+def get_ban_kind(message: Message, user_id):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            for user in conversation['TempBannedUsers']:
+                if user['UserID'] == user_id:
+                    return 'temp'
+
+            for user in conversation['PermanentBannedUsers']:
+                if user['UserID'] == user_id:
+                    return 'permanent'
+
+    return None
+
+
 def add_warn(message: Message, user_id, warn_count):
     with open("DataBase/DB.json", "r") as read_file:
         database = json.load(read_file)
@@ -206,7 +225,7 @@ def add_warn(message: Message, user_id, warn_count):
                     if user['UserID'] == user_id:
                         user['WarnCount'] = warn_count
                         user['LastWarnTime'] = epoch_time
-                        user['WarnClearTime'] = epoch_time + (24*60*60)
+                        user['WarnClearTime'] = epoch_time + (24 * 60 * 60)
 
                         with open("DataBase/DB.json", "w") as write_file:
                             json.dump(database, write_file, indent=4)
@@ -215,12 +234,12 @@ def add_warn(message: Message, user_id, warn_count):
 
             else:
                 warn_pattern = {
-                        'UserID': user_id,
-                        'UserURL': f'https://vk.com/id{user_id}',
-                        'WarnCount': warn_count,
-                        'LastWarnTime': epoch_time,
-                        'WarnClearTime': epoch_time + (24*60*60)
-                    }
+                    'UserID': user_id,
+                    'UserURL': f'https://vk.com/id{user_id}',
+                    'WarnCount': warn_count,
+                    'LastWarnTime': epoch_time,
+                    'WarnClearTime': epoch_time + (24 * 60 * 60)
+                }
 
                 conversation['WarnedUsers'].append(warn_pattern)
 
@@ -275,18 +294,218 @@ def get_warn_count(message: Message, user_id):
     return 0
 
 
-def get_ban_kind(message: Message, user_id):
+def check_permission(message: Message, user_id, permission_lvl):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    if permission_lvl == 0:
+        return True
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+
+            lvl = 1
+            for user in conversation['Permissions']['Moderators']:
+                if user['UserID'] == user_id and permission_lvl <= lvl:
+                    return True
+
+            lvl = 2
+            for user in conversation['Permissions']['Administrators']:
+                if user['UserID'] == user_id and permission_lvl <= lvl:
+                    return True
+
+    return False
+
+
+def set_permission(message: Message, user_id, permission_lvl):
     with open("DataBase/DB.json", "r") as read_file:
         database = json.load(read_file)
 
     for conversation in database['Conversations']:
         if conversation['PeerID'] == message.peer_id:
-            for user in conversation['TempBannedUsers']:
-                if user['UserID'] == user_id:
-                    return 'temp'
 
-            for user in conversation['PermanentBannedUsers']:
-                if user['UserID'] == user_id:
-                    return 'permanent'
+            added = False
+            removed = False
 
-    return None
+            lvl = 1
+            found = False
+            for user in conversation['Permissions']['Moderators']:
+                if user['UserID'] == user_id:
+                    found = True
+            if not found and lvl == permission_lvl:
+                permission_pattern = {
+                    'UserID': user_id,
+                    'UserURL': f'https://vk.com/id{user_id}',
+                    'PermissionLvl': 1
+                }
+                conversation['Permissions']['Moderators'].append(permission_pattern)
+                added = True
+            elif found and lvl != permission_lvl:
+                permission_pattern = {
+                    'UserID': user_id,
+                    'UserURL': f'https://vk.com/id{user_id}',
+                    'PermissionLvl': 1
+                }
+                conversation['Permissions']['Moderators'].remove(permission_pattern)
+                removed = True
+
+            lvl = 2
+            found = False
+            for user in conversation['Permissions']['Administrators']:
+                if user['UserID'] == user_id:
+                    found = True
+            if not found and lvl == permission_lvl:
+                permission_pattern = {
+                    'UserID': user_id,
+                    'UserURL': f'https://vk.com/id{user_id}',
+                    'PermissionLvl': 2
+                }
+                conversation['Permissions']['Administrators'].append(permission_pattern)
+                added = True
+            elif found and lvl != permission_lvl:
+                permission_pattern = {
+                    'UserID': user_id,
+                    'UserURL': f'https://vk.com/id{user_id}',
+                    'PermissionLvl': 2
+                }
+                conversation['Permissions']['Administrators'].remove(permission_pattern)
+                removed = True
+
+            if added or removed:
+                with open("DataBase/DB.json", "w") as write_file:
+                    json.dump(database, write_file, indent=4)
+
+                return True
+            else:
+                return False
+
+    return False
+
+
+def get_permission(message: Message, user_id):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+
+            for user in conversation['Permissions']['Moderators']:
+                if user['UserID'] == user_id:
+                    return user['PermissionLvl'] or 1
+
+            for user in conversation['Permissions']['Administrators']:
+                if user['UserID'] == user_id:
+                    return user['PermissionLvl'] or 2
+
+    return 0
+
+
+def set_cooldown(message: Message, cooldown):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            conversation['MessageCooldownQueue']['Cooldown'] = cooldown
+
+            with open("DataBase/DB.json", "w") as write_file:
+                json.dump(database, write_file, indent=4)
+
+            return True
+
+    return False
+
+
+def get_cooldown(message: Message):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            return conversation['MessageCooldownQueue']['Cooldown']
+
+    return 0
+
+
+def set_log_conversation(message: Message):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    if database['LogConversationID'] == message.peer_id:
+        return False
+
+    else:
+        database['LogConversationID'] = message.peer_id
+
+        with open("DataBase/DB.json", "w") as write_file:
+            json.dump(database, write_file, indent=4)
+
+        return True
+
+
+def get_log_conversation():
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    return database['LogConversationID']
+
+
+def check_message_queue(message: Message):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    epoch_time = int(time.time())
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            place = 0
+            for user in conversation['MessageCooldownQueue']['Queue']:
+                if user['UserID'] == message.from_id:
+                    if user['NextDispatchTime'] <= epoch_time:
+                        return True
+
+                    else:
+                        return False
+
+                elif user['NextDispatchTime'] <= epoch_time:
+                    conversation['MessageCooldownQueue']['Queue'].pop(place)
+
+                place += 1
+
+            return True
+
+    return False
+
+
+def add_to_message_queue(message: Message):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    epoch_time = int(time.time())
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            for user in conversation['MessageCooldownQueue']['Queue']:
+                if user['UserID'] == message.from_id:
+                    user['DispatchTime'] = epoch_time
+                    user['NextDispatchTime'] = epoch_time + conversation['MessageCooldownQueue']['Cooldown']
+
+                    with open("DataBase/DB.json", "w") as write_file:
+                        json.dump(database, write_file, indent=4)
+
+                    return True
+
+            queue_pattern = {
+                'UserID': message.from_id,
+                'DispatchTime': epoch_time,
+                'NextDispatchTime': epoch_time + conversation['MessageCooldownQueue']['Cooldown']
+            }
+
+            conversation['MessageCooldownQueue']['Queue'].append(queue_pattern)
+
+            with open("DataBase/DB.json", "w") as write_file:
+                json.dump(database, write_file, indent=4)
+
+            return True
+
+    return False

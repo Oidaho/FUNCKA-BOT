@@ -1,18 +1,31 @@
 {
+    "LogConversationID": 2000000003,
     "Conversations": [
         {
             "PeerID": 2000000002,
+            "Permissions": {
+                "Moderators": [],
+                "Administrators": []
+            },
+            "Settings": {
+                "Allow_Picture": true,
+                "Allow_Video": true,
+                "Allow_Music": true,
+                "Allow_Voice": true,
+                "Allow_Post": true
+            },
             "PermanentBannedUsers": [],
             "TempBannedUsers": [],
             "WarnedUsers": [],
-            "Permissions": {
-                "Moderators": [],
-                "Administrators": [],
-                "Operators": []
-            },
             "MessageCooldownQueue": {
-                "Cooldown": 0,
-                "Queue": []
+                "Cooldown": 10,
+                "Queue": [
+                    {
+                        "UserID": 206295116,
+                        "DispatchTime": 1676708081,
+                        "NextDispatchTime": 1676708091
+                    }
+                ]
             }
         }
     ]

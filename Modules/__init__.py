@@ -1,3 +1,3 @@
-from . import TrashTalkFilter, URLFilter, GroupAnswerer, Moderation, ConversationRegistrator
+from . import ForbiddenFilter, URLFilter, MessageQueueHandler, Moderation, ConversationRegistrator
 
-labelers = [GroupAnswerer.bl, ConversationRegistrator.bl, Moderation.bl, TrashTalkFilter.bl, URLFilter.bl]
+labelers = [ConversationRegistrator.bl, MessageQueueHandler.bl, Moderation.bl, ForbiddenFilter.bl, URLFilter.bl]
