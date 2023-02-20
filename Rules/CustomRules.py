@@ -5,11 +5,12 @@ from DataBase import DataBaseTools as DBtools
 from vkbottle.tools.dev.mini_types.base import BaseMessageMin
 from Config import GROUP, TOKEN
 
+
 bot = Bot(token=TOKEN)
 
 DEFAULT_PREFIXES = ["!", "/"]
 DEFAULT_ALIASES = ["Command", "command"]
-STANDARD_PERMISSION = ['1']
+STANDARD_PERMISSION = 1
 STANDARD_REPLY = False
 STANDARD_LOG_HANDLE = False
 
@@ -30,7 +31,7 @@ class HandleCommand(ABCRule[BaseMessageMin]):
     async def check(self, message: BaseMessageMin) -> Union[dict, bool]:
         text = message.text
 
-        # ignore arguments if command have 0 args in setting
+        # Тут игнорируются аргументы, если команда имеет 0 аргументов в настройке
         if not self.args_count and self.sep in text:
             cut = message.text.find(self.sep)
             text = text[0:cut]
@@ -40,23 +41,47 @@ class HandleCommand(ABCRule[BaseMessageMin]):
                 command_length = len(prefix + command_text)
                 command_length_with_sep = command_length + len(self.sep)
                 if text.startswith(prefix + command_text):
-                    # If command have 0 args in setting
+                    # Если команда имеет 0 аргументов в настройке
                     if not self.args_count and len(text) == command_length:
-                        return True
-
-                    elif self.args_count:
-                        args = message.text[command_length_with_sep:].split(self.sep)
-                        if len(args) == self.args_count and all(args):
-                            return {"args": args}
-
-                        else:
-                            print('deleted')
+                        try:
                             await bot.api.messages.delete(
                                 group_id=GROUP,
                                 peer_id=message.peer_id,
                                 cmids=message.conversation_message_id,
                                 delete_for_all=True
                             )
+                        except Exception:
+                            pass
+
+                        return True
+
+                    elif self.args_count:
+                        args = message.text[command_length_with_sep:].split(self.sep)
+                        if len(args) == self.args_count and all(args):
+                            try:
+                                await bot.api.messages.delete(
+                                    group_id=GROUP,
+                                    peer_id=message.peer_id,
+                                    cmids=message.conversation_message_id,
+                                    delete_for_all=True
+                                )
+                            except Exception:
+                                pass
+
+                            return {"args": args}
+
+                        else:
+                            print('deleted')
+                            try:
+                                await bot.api.messages.delete(
+                                    group_id=GROUP,
+                                    peer_id=message.peer_id,
+                                    cmids=message.conversation_message_id,
+                                    delete_for_all=True
+                                )
+                            except Exception:
+                                pass
+
                             return False
 
         return False
@@ -188,12 +213,16 @@ class PermissionSameIgnore(ABCRule[BaseMessageMin]):
                 return True
 
             else:
-                await bot.api.messages.delete(
-                    group_id=GROUP,
-                    peer_id=message.peer_id,
-                    cmids=message.conversation_message_id,
-                    delete_for_all=True
-                )
+                try:
+                    await bot.api.messages.delete(
+                        group_id=GROUP,
+                        peer_id=message.peer_id,
+                        cmids=message.conversation_message_id,
+                        delete_for_all=True
+                    )
+                except Exception:
+                    pass
+
                 return False
 
         elif message.fwd_messages:
@@ -201,12 +230,16 @@ class PermissionSameIgnore(ABCRule[BaseMessageMin]):
                 return True
 
             else:
-                await bot.api.messages.delete(
-                    group_id=GROUP,
-                    peer_id=message.peer_id,
-                    cmids=message.conversation_message_id,
-                    delete_for_all=True
-                )
+                try:
+                    await bot.api.messages.delete(
+                        group_id=GROUP,
+                        peer_id=message.peer_id,
+                        cmids=message.conversation_message_id,
+                        delete_for_all=True
+                    )
+                except Exception:
+                    pass
+
                 return False
 
         else:
@@ -228,12 +261,16 @@ class PermissionSameIgnore(ABCRule[BaseMessageMin]):
                                 return True
 
                             else:
-                                await bot.api.messages.delete(
-                                    group_id=GROUP,
-                                    peer_id=message.peer_id,
-                                    cmids=message.conversation_message_id,
-                                    delete_for_all=True
-                                )
+                                try:
+                                    await bot.api.messages.delete(
+                                        group_id=GROUP,
+                                        peer_id=message.peer_id,
+                                        cmids=message.conversation_message_id,
+                                        delete_for_all=True
+                                    )
+                                except Exception:
+                                    pass
+
                                 return False
 
                         elif arg.startswith('https://vk.com/'):
@@ -245,12 +282,16 @@ class PermissionSameIgnore(ABCRule[BaseMessageMin]):
                                 return True
 
                             else:
-                                await bot.api.messages.delete(
-                                    group_id=GROUP,
-                                    peer_id=message.peer_id,
-                                    cmids=message.conversation_message_id,
-                                    delete_for_all=True
-                                )
+                                try:
+                                    await bot.api.messages.delete(
+                                        group_id=GROUP,
+                                        peer_id=message.peer_id,
+                                        cmids=message.conversation_message_id,
+                                        delete_for_all=True
+                                    )
+                                except Exception:
+                                    pass
+
                                 return False
 
             return True
@@ -266,22 +307,30 @@ class HandleRepliedMessages(ABCRule[BaseMessageMin]):
                 return True
 
             else:
-                await bot.api.messages.delete(
-                    group_id=GROUP,
-                    peer_id=message.peer_id,
-                    cmids=message.conversation_message_id,
-                    delete_for_all=True
-                )
+                try:
+                    await bot.api.messages.delete(
+                        group_id=GROUP,
+                        peer_id=message.peer_id,
+                        cmids=message.conversation_message_id,
+                        delete_for_all=True
+                    )
+                except Exception:
+                    pass
+
                 return False
 
         else:
             if message.reply_message is not None or message.fwd_messages:
-                await bot.api.messages.delete(
-                    group_id=GROUP,
-                    peer_id=message.peer_id,
-                    cmids=message.conversation_message_id,
-                    delete_for_all=True
-                )
+                try:
+                    await bot.api.messages.delete(
+                        group_id=GROUP,
+                        peer_id=message.peer_id,
+                        cmids=message.conversation_message_id,
+                        delete_for_all=True
+                    )
+                except Exception:
+                    pass
+
                 return False
 
             else:
@@ -299,12 +348,16 @@ class HandleLogConversation(ABCRule[BaseMessageMin]):
         else:
             log_peer = DBtools.get_log_conversation()
             if message.peer_id == log_peer:
-                await bot.api.messages.delete(
-                    group_id=GROUP,
-                    peer_id=message.peer_id,
-                    cmids=message.conversation_message_id,
-                    delete_for_all=True
-                )
+                try:
+                    await bot.api.messages.delete(
+                        group_id=GROUP,
+                        peer_id=message.peer_id,
+                        cmids=message.conversation_message_id,
+                        delete_for_all=True
+                    )
+                except Exception:
+                    pass
+
                 return False
 
             else:

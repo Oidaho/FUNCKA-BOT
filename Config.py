@@ -25,6 +25,19 @@ PERMISSION_LVL = {
     '3': 'Operator'
 }
 
+SETTINGS = [
+    'Allow_Picture',
+    'Allow_Video',
+    'Allow_Music',
+    'Allow_Voice',
+    'Allow_Post',
+    'Allow_Votes',
+    'Allow_Files',
+    'Allow_Miniapp',
+    'Allow_Graffiti',
+    'Allow_Sticker'
+]
+
 ALIASES = {
     'ban': ['ban', 'Ban', 'бан', 'Бан', 'блок', 'Блок'],
     'ban_url': ['ban_url', 'Ban_url', 'бан_ссылкой', 'Бан_cсылкой', 'блок_ссылкой', 'Блок_ссылкой'],
@@ -42,6 +55,7 @@ ALIASES = {
     'reference': ['reference', 'Reference', 'справка', 'Справка'],
     'set_cooldown': ['set_cooldown', 'Set_cooldown', 'установить_задержку', 'установить_задержку'],
     'set_log_conversation': ['set_log_conversation', 'Set_log_conversation', 'установить_лог_беседу', 'Установить_лог_беседу'],
+    'change_setting': ['change_setting', 'Change_setting', 'изменить_настройку', 'Изменить_настройку'],
 
     'set_permission': ['set_permission', 'Set_permission', 'дать_права', 'Дать_права'],
     'set_permission_url': ['set_permission_url', 'Set_permission_url', 'дать_права_ссылкой', 'Дать_права_ссылкой'],

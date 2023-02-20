@@ -5,27 +5,70 @@
             "PeerID": 2000000002,
             "Permissions": {
                 "Moderators": [],
-                "Administrators": []
+                "Administrators": [
+                    {
+                        "UserID": 206295116,
+                        "UserURL": "https://vk.com/id206295116",
+                        "PermissionLvl": 2
+                    }
+                ]
+            },
+            "Settings": {
+                "Allow_Picture": true,
+                "Allow_Video": false,
+                "Allow_Music": false,
+                "Allow_Voice": false,
+                "Allow_Post": false,
+                "Allow_Votes": false,
+                "Allow_Files": false,
+                "Allow_Miniapp": false,
+                "Allow_Graffiti": false,
+                "Allow_Sticker": false
+            },
+            "PermanentBannedUsers": [],
+            "TempBannedUsers": [],
+            "WarnedUsers": [],
+            "MessageCooldownQueue": {
+                "Cooldown": 0,
+                "Queue": [
+                    {
+                        "UserID": 283873532,
+                        "DispatchTime": 1676882065,
+                        "NextDispatchTime": 1676882075
+                    }
+                ]
+            }
+        },
+        {
+            "PeerID": 2000000003,
+            "Permissions": {
+                "Moderators": [],
+                "Administrators": [
+                    {
+                        "UserID": 206295116,
+                        "UserURL": "https://vk.com/id206295116",
+                        "PermissionLvl": 2
+                    }
+                ]
             },
             "Settings": {
                 "Allow_Picture": true,
                 "Allow_Video": true,
                 "Allow_Music": true,
                 "Allow_Voice": true,
-                "Allow_Post": true
+                "Allow_Post": true,
+                "Allow_Votes": true,
+                "Allow_Files": true,
+                "Allow_Miniapp": true,
+                "Allow_Graffiti": true,
+                "Allow_Sticker": true
             },
             "PermanentBannedUsers": [],
             "TempBannedUsers": [],
             "WarnedUsers": [],
             "MessageCooldownQueue": {
-                "Cooldown": 10,
-                "Queue": [
-                    {
-                        "UserID": 206295116,
-                        "DispatchTime": 1676708081,
-                        "NextDispatchTime": 1676708091
-                    }
-                ]
+                "Cooldown": 0,
+                "Queue": []
             }
         }
     ]

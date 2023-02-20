@@ -55,6 +55,11 @@ def add_conversation(message: Message):
             'Allow_Music': True,
             'Allow_Voice': True,
             'Allow_Post': True,
+            'Allow_Votes': True,
+            'Allow_Files': True,
+            'Allow_Miniapp': True,
+            'Allow_Graffiti': True,
+            'Allow_Sticker': True
         },
         'PermanentBannedUsers': [],
         'TempBannedUsers': [],
@@ -73,7 +78,7 @@ def add_conversation(message: Message):
     return False
 
 
-def add_permanent_ban(message: Message):
+def add_permanent_ban(message: Message, user_id):
     with open("DataBase/DB.json", "r") as read_file:
         database = json.load(read_file)
 
@@ -81,12 +86,12 @@ def add_permanent_ban(message: Message):
         if conversation['PeerID'] == message.peer_id:
 
             for user in conversation['PermanentBannedUsers']:
-                if user['UserID'] == message.reply_message.from_id:
+                if user['UserID'] == user_id:
                     return False
 
             permanent_ban_pattern = {
-                'UserID': message.reply_message.from_id,
-                'UserURL': f'https://vk.com/id{message.reply_message.from_id}',
+                'UserID': user_id,
+                'UserURL': f'https://vk.com/id{user_id}',
                 'BannedByID': message.from_id,
                 'BannedByURL': f'https://vk.com/id{message.from_id}'
             }
@@ -502,6 +507,37 @@ def add_to_message_queue(message: Message):
             }
 
             conversation['MessageCooldownQueue']['Queue'].append(queue_pattern)
+
+            with open("DataBase/DB.json", "w") as write_file:
+                json.dump(database, write_file, indent=4)
+
+            return True
+
+    return False
+
+
+def get_setting(message: Message, setting: str):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            if setting in conversation['Settings']:
+                return conversation['Settings'][setting]
+
+            else:
+                return False
+
+    return False
+
+
+def change_setting(message: Message, setting: str, value: bool):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            conversation['Settings'][setting] = value
 
             with open("DataBase/DB.json", "w") as write_file:
                 json.dump(database, write_file, indent=4)
