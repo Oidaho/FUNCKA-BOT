@@ -233,7 +233,7 @@ def add_mute(message: Message, user_id, current_time, time_type):
                 'MuteClearTime': epoch_time + summary_time
             }
 
-            conversation['TempBannedUsers'].append(mute_pattern)
+            conversation['MutedUsers'].append(mute_pattern)
 
             with open("DataBase/DB.json", "w") as write_file:
                 json.dump(database, write_file, indent=4)

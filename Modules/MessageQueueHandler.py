@@ -10,7 +10,7 @@ bl = BotLabeler()
 
 
 @bl.chat_message(
-    PermissionSelfIgnore(1),
+    # PermissionSelfIgnore(1),
     HandleLogConversation(False),
     blocking=False
 )
@@ -59,7 +59,7 @@ async def add_to_message_queue(message: Message):
                 reason = 'Получено 3 предупреждения'
                 mute_users_info = await bot.api.users.get(message.from_id)
 
-                time = '3'
+                time = '1'
                 time_type = 'day(s)'
 
                 if DBtools.add_mute(message, message.from_id, time, time_type):

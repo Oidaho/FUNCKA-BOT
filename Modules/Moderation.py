@@ -1,4 +1,5 @@
 import datetime
+import time
 
 from vkbottle.bot import Bot, BotLabeler, Message
 from typing import Tuple
@@ -26,10 +27,9 @@ bl = BotLabeler()
     HandleRepliedMessages(False)
 )
 async def reference(message: Message):
-    users_info = await bot.api.users.get(message.from_id)
+    url = ''
 
-    title = f'url' \
-
+    title = f'{url}]'
     await message.answer(title)
 
 
@@ -44,61 +44,64 @@ async def ban(message: Message, args: Tuple[str]):
     if not message.fwd_messages:
         ban_users_info = await bot.api.users.get(message.reply_message.from_id)
         if ban_users_info:
-            time = args[0]
+            offset = datetime.timedelta(hours=3)
+            tz = datetime.timezone(offset, name='МСК')
+
+            time_value = args[0]
             time_type = TIME_TYPE[args[1]]
 
             if args[1] == 'p':
-                time = ''
-                offset = '--'
+                time_value = ''
+                epoch = '--'
 
             elif args[1] == 'm':
-                if int(time) < 0:
-                    time = '1'
-                if int(time) > 12:
-                    time = '12'
-                offset = datetime.timezone(datetime.timedelta(days=int(time) * 31, hours=3))
+                if int(time_value) < 0:
+                    time_value = '1'
+                if int(time_value) > 12:
+                    time_value = '12'
+                epoch = int(time.time()) + (31 * 24 * 60 * 60 * int(time_value))
 
             elif args[1] == 'd':
-                if int(time) < 0:
-                    time = '1'
-                if int(time) > 31:
-                    time = '31'
-                offset = datetime.timezone(datetime.timedelta(days=int(time), hours=3))
+                if int(time_value) < 0:
+                    time_value = '1'
+                if int(time_value) > 31:
+                    time_value = '31'
+                epoch = int(time.time()) + (24 * 60 * 60 * int(time_value))
 
             elif args[1] == 'h':
-                if int(time) < 0:
-                    time = '1'
-                if int(time) > 24:
-                    time = '24'
-                offset = datetime.timezone(datetime.timedelta(hours=3 + int(time)))
+                if int(time_value) < 0:
+                    time_value = '1'
+                if int(time_value) > 24:
+                    time_value = '24'
+                epoch = int(time.time()) + (60 * 60 * int(time_value))
 
             else:
-                time = '1'
+                time_value = '1'
                 time_type = TIME_TYPE['h']
-                offset = datetime.timezone(datetime.timedelta(hours=3 + 1))
+                epoch = int(time.time()) + (60 * 60 * 1)
 
-            if offset == '--':
-                Moscow_time = offset
+            if epoch == '--':
+                Moscow_time = epoch
 
             else:
-                Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+                Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
 
             title = f'@id{ban_users_info[0].id} (Пользователь) ' \
-                    f'был заблокирован на {time} {time_type}.\n' \
+                    f'был заблокирован на {time_value} {time_type}.\n' \
                     f'Блокировка будет снята: {Moscow_time}'
 
-            if time == '' and time_type == 'permanent':
+            if time_value == '' and time_type == 'permanent':
                 if DBtools.add_permanent_ban(message, ban_users_info[0].id):
                     await message.answer(title)
-                    await ol.log_banned(message, ban_users_info, time, time_type)
+                    await ol.log_banned(message, ban_users_info, time_value, time_type)
 
                     # TODO: убрать коммент чтоб банило
                     '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
 
             else:
-                if DBtools.add_temp_ban(message, ban_users_info[0].id, time, time_type):
+                if DBtools.add_temp_ban(message, ban_users_info[0].id, time_value, time_type):
                     await message.answer(title)
-                    await ol.log_banned(message, ban_users_info, time, time_type)
+                    await ol.log_banned(message, ban_users_info, time_value, time_type)
 
                     # TODO: убрать коммент чтоб банило
                     '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
@@ -135,61 +138,64 @@ async def ban_url(message: Message, args: Tuple[str]):
             ban_users_info = await bot.api.users.get([shortname])
 
             if ban_users_info:
-                time = args[0]
+                offset = datetime.timedelta(hours=3)
+                tz = datetime.timezone(offset, name='МСК')
+
+                time_value = args[0]
                 time_type = TIME_TYPE[args[1]]
 
                 if args[1] == 'p':
-                    time = ''
-                    offset = '--'
+                    time_value = ''
+                    epoch = '--'
 
                 elif args[1] == 'm':
-                    if int(time) < 0:
-                        time = '1'
-                    if int(time) > 12:
-                        time = '12'
-                    offset = datetime.timezone(datetime.timedelta(days=int(time) * 31, hours=3))
+                    if int(time_value) < 0:
+                        time_value = '1'
+                    if int(time_value) > 12:
+                        time_value = '12'
+                    epoch = int(time.time()) + (31 * 24 * 60 * 60 * int(time_value))
 
                 elif args[1] == 'd':
-                    if int(time) < 0:
-                        time = '1'
-                    if int(time) > 31:
-                        time = '31'
-                    offset = datetime.timezone(datetime.timedelta(days=int(time), hours=3))
+                    if int(time_value) < 0:
+                        time_value = '1'
+                    if int(time_value) > 31:
+                        time_value = '31'
+                    epoch = int(time.time()) + (24 * 60 * 60 * int(time_value))
 
                 elif args[1] == 'h':
-                    if int(time) < 0:
-                        time = '1'
-                    if int(time) > 24:
-                        time = '24'
-                    offset = datetime.timezone(datetime.timedelta(hours=3 + int(time)))
+                    if int(time_value) < 0:
+                        time_value = '1'
+                    if int(time_value) > 24:
+                        time_value = '24'
+                    epoch = int(time.time()) + (60 * 60 * int(time_value))
 
                 else:
-                    time = '1'
+                    time_value = '1'
                     time_type = TIME_TYPE['h']
-                    offset = datetime.timezone(datetime.timedelta(hours=3 + 1))
+                    epoch = int(time.time()) + (60 * 60 * 1)
 
-                if offset == '--':
-                    Moscow_time = offset
+                if epoch == '--':
+                    Moscow_time = epoch
 
                 else:
-                    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+                    Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
 
                 title = f'@id{ban_users_info[0].id} (Пользователь) ' \
-                        f'был заблокирован на {time} {time_type}.\n' \
+                        f'был заблокирован на {time_value} {time_type}.\n' \
                         f'Блокировка будет снята: {Moscow_time}'
 
-                if time == '' and time_type == 'permanent':
+                if time_value == '' and time_type == 'permanent':
                     if DBtools.add_permanent_ban(message, ban_users_info[0].id):
                         await message.answer(title)
-                        await ol.log_banned_url(message, ban_users_info, time, time_type)
+                        await ol.log_banned_url(message, ban_users_info, time_value, time_type)
 
                         # TODO: убрать коммент чтоб банило
                         '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
 
                 else:
-                    if DBtools.add_temp_ban(message, ban_users_info[0].id, time, time_type):
+                    if DBtools.add_temp_ban(message, ban_users_info[0].id, time_value, time_type):
                         await message.answer(title)
-                        await ol.log_banned_url(message, ban_users_info, time, time_type)
+                        await ol.log_banned_url(message, ban_users_info, time_value, time_type)
 
                         # TODO: убрать коммент чтоб банило
                         '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
@@ -207,44 +213,48 @@ async def mute(message: Message, args: Tuple[str]):
         mute_users_info = await bot.api.users.get(message.reply_message.from_id)
 
         if mute_users_info:
-            time = args[0]
+
+            offset = datetime.timedelta(hours=3)
+            tz = datetime.timezone(offset, name='МСК')
+
+            time_value = args[0]
             time_type = TIME_TYPE[args[1]]
 
             if args[1] == 'm':
-                if int(time) < 0:
-                    time = '1'
-                if int(time) > 12:
-                    time = '12'
-                offset = datetime.timezone(datetime.timedelta(days=int(time) * 31, hours=3))
+                if int(time_value) < 0:
+                    time_value = '1'
+                if int(time_value) > 12:
+                    time_value = '12'
+                epoch = int(time.time()) + (31 * 24 * 60 * 60 * int(time_value))
 
             elif args[1] == 'd':
-                if int(time) < 0:
-                    time = '1'
-                if int(time) > 31:
-                    time = '31'
-                offset = datetime.timezone(datetime.timedelta(days=int(time), hours=3))
+                if int(time_value) < 0:
+                    time_value = '1'
+                if int(time_value) > 31:
+                    time_value = '31'
+                epoch = int(time.time()) + (24 * 60 * 60 * int(time_value))
 
             elif args[1] == 'h':
-                if int(time) < 0:
-                    time = '1'
-                if int(time) > 24:
-                    time = '24'
-                offset = datetime.timezone(datetime.timedelta(hours=3 + int(time)))
+                if int(time_value) < 0:
+                    time_value = '1'
+                if int(time_value) > 24:
+                    time_value = '24'
+                epoch = int(time.time()) + (60 * 60 * int(time_value))
 
             else:
-                time = '1'
+                time_value = '1'
                 time_type = TIME_TYPE['h']
-                offset = datetime.timezone(datetime.timedelta(hours=3 + 1))
+                epoch = int(time.time()) + (60 * 60 * 1)
 
-            Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+            Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
 
             title = f'@id{mute_users_info[0].id} (Пользователь) ' \
-                    f'был заглушен на {time} {time_type}.' \
+                    f'был заглушен на {time_value} {time_type}.' \
                     f'Заглушение будет снято: {Moscow_time}'
 
-            if DBtools.add_mute(message, mute_users_info[0].id, time, time_type):
+            if DBtools.add_mute(message, mute_users_info[0].id, time_value, time_type):
                 await message.answer(title)
-                await ol.log_muted(message, mute_users_info, time, time_type)
+                await ol.log_muted(message, mute_users_info, time_value, time_type)
 
             message_id = message.reply_message.conversation_message_id
             peer_id = message.peer_id
@@ -277,44 +287,47 @@ async def mute_url(message: Message, args: Tuple[str]):
             mute_users_info = await bot.api.users.get([shortname])
 
             if mute_users_info:
-                time = args[0]
+                offset = datetime.timedelta(hours=3)
+                tz = datetime.timezone(offset, name='МСК')
+
+                time_value = args[0]
                 time_type = TIME_TYPE[args[1]]
 
                 if args[1] == 'm':
-                    if int(time) < 0:
-                        time = '1'
-                    if int(time) > 12:
-                        time = '12'
-                    offset = datetime.timezone(datetime.timedelta(days=int(time)*31, hours=3))
+                    if int(time_value) < 0:
+                        time_value = '1'
+                    if int(time_value) > 12:
+                        time_value = '12'
+                    epoch = int(time.time()) + (31 * 24 * 60 * 60 * int(time_value))
 
                 elif args[1] == 'd':
-                    if int(time) < 0:
-                        time = '1'
-                    if int(time) > 31:
-                        time = '31'
-                    offset = datetime.timezone(datetime.timedelta(days=int(time), hours=3))
+                    if int(time_value) < 0:
+                        time_value = '1'
+                    if int(time_value) > 31:
+                        time_value = '31'
+                    epoch = int(time.time()) + (24 * 60 * 60 * int(time_value))
 
                 elif args[1] == 'h':
-                    if int(time) < 0:
-                        time = '1'
-                    if int(time) > 24:
-                        time = '24'
-                    offset = datetime.timezone(datetime.timedelta(hours=3 + int(time)))
+                    if int(time_value) < 0:
+                        time_value = '1'
+                    if int(time_value) > 24:
+                        time_value = '24'
+                    epoch = int(time.time()) + (60 * 60 * int(time_value))
 
                 else:
-                    time = '1'
+                    time_value = '1'
                     time_type = TIME_TYPE['h']
-                    offset = datetime.timezone(datetime.timedelta(hours=3 + 1))
+                    epoch = int(time.time()) + (60 * 60 * 1)
 
-                Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+                Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
 
                 title = f'@id{mute_users_info[0].id} (Пользователь) ' \
-                        f'был заглушен на {time} {time_type}\n' \
+                        f'был заглушен на {time_value} {time_type}\n' \
                         f'Заглушение будет снято: {Moscow_time}'
 
-                if DBtools.add_mute(message, mute_users_info[0].id, time, time_type):
+                if DBtools.add_mute(message, mute_users_info[0].id, time_value, time_type):
                     await message.answer(title)
-                    await ol.log_muted_url(message, mute_users_info, time, time_type)
+                    await ol.log_muted_url(message, mute_users_info, time_value, time_type)
 
 
 @bl.chat_message(
@@ -344,18 +357,22 @@ async def warn(message: Message):
             if warn_count + 1 == 3:
                 reason = 'Получено 3 предупреждения'
 
-                time = '1'
+                time_value = '1'
                 time_type = TIME_TYPE['d']
 
-                offset = datetime.timezone(datetime.timedelta(days=1, hours=3))
-                Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+                epoch = int(time.time()) + (24 * 60 * 60 * 1)
 
-                if DBtools.add_mute(message, warn_users_info[0].id, time, time_type):
+                offset = datetime.timedelta(hours=3)
+                tz = datetime.timezone(offset, name='МСК')
+
+                Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
+
+                if DBtools.add_mute(message, warn_users_info[0].id, time_value, time_type):
                     title = f'@id{warn_users_info[0].id} (Пользователь) ' \
-                            f'был заглушен на {time} {time_type}.\n' \
+                            f'был заглушен на {time_value} {time_type}.\n' \
                             f'Заглушение будет снято: {Moscow_time}'
                     await message.answer(title)
-                    await ol.log_system_muted(message, warn_users_info, time, time_type, reason)
+                    await ol.log_system_muted(message, warn_users_info, time_value, time_type, reason)
 
             message_id = message.reply_message.conversation_message_id
             peer_id = message.peer_id
@@ -401,14 +418,14 @@ async def warn_url(message: Message, args: Tuple[str]):
                 if warn_count + 1 == 3:
                     reason = 'Получено 3 предупреждения'
 
-                    time = '3'
+                    time_value = '3'
                     time_type = TIME_TYPE['d']
 
-                    if DBtools.add_mute(message, warn_users_info[0].id, time, time_type):
+                    if DBtools.add_mute(message, warn_users_info[0].id, time_value, time_type):
                         title = f'@id{warn_users_info[0].id} (Пользователь) ' \
-                                f'был заглушен на {time} {time_type}.'
+                                f'был заглушен на {time_value} {time_type}.'
                         await message.answer(title)
-                        await ol.log_system_muted(message, warn_users_info, time, time_type, reason)
+                        await ol.log_system_muted(message, warn_users_info, time_value, time_type, reason)
 
 
 @bl.chat_message(
@@ -678,7 +695,6 @@ async def set_cooldown(message: Message, args: Tuple[str]):
         cooldown = int(args[0])  # Catching exception here
 
         if DBtools.set_cooldown(message, cooldown):
-            users_info = await bot.api.users.get(message.from_id)
             title = f'Задержка на сообщения для данной беседы установлена на {cooldown} second(s).'
             await message.answer(title)
             await ol.log_cooldown_changed(message, cooldown)
