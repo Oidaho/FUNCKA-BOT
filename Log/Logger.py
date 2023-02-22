@@ -13,6 +13,8 @@ async def log_banned(message: Message, users_info, time, time_type):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -25,8 +27,9 @@ async def log_banned(message: Message, users_info, time, time_type):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) заблокировал ' \
-            f'данного @id{users_info[0].id} (пользователя) ' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) ' \
+            f'заблокировал данного @id{users_info[0].id} ' \
+            f'(пользователя ({users_info[0].first_name} {users_info[0].last_name})) ' \
             f'на {time} {time_type}\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
@@ -49,6 +52,8 @@ async def log_banned_url(message: Message, users_info, time, time_type):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -61,8 +66,9 @@ async def log_banned_url(message: Message, users_info, time, time_type):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) заблокировал ' \
-            f'данного @id{users_info[0].id} (пользователя) ' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name}))' \
+            f' заблокировал ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})) ' \
             f'на {time} {time_type}, используя ссылку\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
@@ -74,7 +80,7 @@ async def log_banned_url(message: Message, users_info, time, time_type):
     )
 
 
-async def log_system_banned(message: Message, users_info, time, time_type):
+async def log_system_banned(message: Message, users_info, time, time_type, reason):
     LOG_PEER = DBtools.get_log_conversation()
 
     conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
@@ -84,11 +90,176 @@ async def log_system_banned(message: Message, users_info, time, time_type):
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
     title = f'Система заблокировала ' \
-            f'данного @id{users_info[0].id} (пользователя) ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})) ' \
             f'на {time} {time_type}\n' \
+            f'Причина: {reason}\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
 
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        random_id=0
+    )
+
+
+async def log_muted(message: Message, users_info, time, time_type):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    author_permission = DBtools.get_permission(message, message.from_id)
+    author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
+    if author_permission == 1:
+        author_permission = 'Модератор'
+
+    elif author_permission == 2:
+        author_permission = 'Администратор'
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    offset = datetime.timezone(datetime.timedelta(hours=3))
+    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) заглушил ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})) ' \
+            f'на {time} {time_type}\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+    forward = {
+        'peer_id': message.peer_id,
+        'conversation_message_ids': [message.reply_message.conversation_message_id],
+    }
+    forward = json.dumps(forward)
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        forward=forward,
+        random_id=0
+    )
+
+
+async def log_muted_url(message: Message, users_info, time, time_type):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    author_permission = DBtools.get_permission(message, message.from_id)
+    author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
+    if author_permission == 1:
+        author_permission = 'Модератор'
+
+    elif author_permission == 2:
+        author_permission = 'Администратор'
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    offset = datetime.timezone(datetime.timedelta(hours=3))
+    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) заглушил ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})) ' \
+            f'на {time} {time_type}, используя ссылку\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        random_id=0
+    )
+
+
+async def log_system_muted(message: Message, users_info, time, time_type, reason):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    offset = datetime.timezone(datetime.timedelta(hours=3))
+    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+
+    title = f'Система заглушила ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})) ' \
+            f'на {time} {time_type}\n' \
+            f'Причина: {reason}\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        random_id=0
+    )
+
+
+async def log_unmuted(message: Message, users_info):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    author_permission = DBtools.get_permission(message, message.from_id)
+    author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
+    if author_permission == 1:
+        author_permission = 'Модератор'
+
+    elif author_permission == 2:
+        author_permission = 'Администратор'
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    offset = datetime.timezone(datetime.timedelta(hours=3))
+    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) разглушил ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name}))\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+    forward = {
+        'peer_id': message.peer_id,
+        'conversation_message_ids': [message.reply_message.conversation_message_id],
+    }
+    forward = json.dumps(forward)
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        forward=forward,
+        random_id=0
+    )
+
+
+async def log_unmuted_url(message: Message, users_info):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    author_permission = DBtools.get_permission(message, message.from_id)
+    author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
+    if author_permission == 1:
+        author_permission = 'Модератор'
+
+    elif author_permission == 2:
+        author_permission = 'Администратор'
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    offset = datetime.timezone(datetime.timedelta(hours=3))
+    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) ' \
+            f'разглушил ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})), ' \
+            f'используя ссылку\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
     await bot.api.messages.send(
         group_id=GROUP,
         peer_id=LOG_PEER,
@@ -102,6 +273,8 @@ async def log_warned(message: Message, users_info, warn_count):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -114,8 +287,9 @@ async def log_warned(message: Message, users_info, warn_count):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) выдал ' \
-            f'предупреждение @id{users_info[0].id} (пользователю)\n' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) выдал ' \
+            f'предупреждение ' \
+            f'@id{users_info[0].id} (пользователю ({users_info[0].first_name} {users_info[0].last_name}))\n' \
             f'Количество предупреждений: {warn_count}/3\n' \
             f'Предупреждения будут сняты через сутки\n' \
             f'Источник: {conversations_name}\n' \
@@ -140,6 +314,8 @@ async def log_warned_url(message: Message, users_info, warn_count):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -152,8 +328,10 @@ async def log_warned_url(message: Message, users_info, warn_count):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) выдал ' \
-            f'предупреждение @id{users_info[0].id} (пользователю), используя ссылку\n' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) выдал ' \
+            f'предупреждение ' \
+            f'@id{users_info[0].id} (пользователю ({users_info[0].first_name} {users_info[0].last_name})), ' \
+            f'используя ссылку\n' \
             f'Количество предупреждений: {warn_count}/3\n' \
             f'Предупреждения будут сняты через сутки\n' \
             f'Источник: {conversations_name}\n' \
@@ -167,11 +345,47 @@ async def log_warned_url(message: Message, users_info, warn_count):
     )
 
 
+async def log_system_warned(message: Message, users_info, warn_count, reason):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    offset = datetime.timezone(datetime.timedelta(hours=3))
+    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+    offset = datetime.timezone(datetime.timedelta(days=1, hours=3))
+    Msk_tomorrow = str(datetime.datetime.now(offset)).split('.')[0]
+
+    title = f'Система выдала ' \
+            f'предупреждение ' \
+            f'@id{users_info[0].id} (пользователю ({users_info[0].first_name} {users_info[0].last_name})))\n' \
+            f'Количество предупреждений: {warn_count}/3\n' \
+            f'Предупреждения будут сняты: {Msk_tomorrow}\n' \
+            f'Причина: {reason}\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+
+    forward = {
+        'peer_id': message.peer_id,
+        'conversation_message_ids': [message.reply_message.conversation_message_id],
+    }
+    forward = json.dumps(forward)
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        forward=forward,
+        random_id=0
+    )
+
+
 async def log_unbanned(message: Message, users_info):
     LOG_PEER = DBtools.get_log_conversation()
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -184,8 +398,9 @@ async def log_unbanned(message: Message, users_info):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) разблокировал ' \
-            f'данного @id{users_info[0].id} (пользователя)\n' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) ' \
+            f'разблокировал ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name}))\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
     forward = {
@@ -207,6 +422,8 @@ async def log_unbanned_url(message: Message, users_info):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -219,8 +436,10 @@ async def log_unbanned_url(message: Message, users_info):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) разблокировал ' \
-            f'данного @id{users_info[0].id} (пользователя), используя ссылку\n' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) ' \
+            f'разблокировал ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})), ' \
+            f'используя ссылку\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
     await bot.api.messages.send(
@@ -236,6 +455,8 @@ async def log_unwarned(message: Message, users_info, warn_count):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -248,8 +469,9 @@ async def log_unwarned(message: Message, users_info, warn_count):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) снял ' \
-            f'предупреждение с @id{users_info[0].id} (пользователя)\n' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) снял ' \
+            f'предупреждение с ' \
+            f'@id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name}))\n' \
             f'Количество предупреждений: {warn_count}/3\n' \
             f'Предупреждения будут сняты через сутки\n' \
             f'Источник: {conversations_name}\n' \
@@ -273,6 +495,8 @@ async def log_unwarned_url(message: Message, users_info, warn_count):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -285,8 +509,10 @@ async def log_unwarned_url(message: Message, users_info, warn_count):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) снял ' \
-            f'предупреждение с @id{users_info[0].id} (пользователя), используя ссылку\n' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) снял ' \
+            f'предупреждение с ' \
+            f'@id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})), ' \
+            f'используя ссылку\n' \
             f'Количество предупреждений: {warn_count}/3\n' \
             f'Предупреждения будут сняты через сутки\n' \
             f'Источник: {conversations_name}\n' \
@@ -304,6 +530,8 @@ async def log_deleted(message: Message):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -316,7 +544,8 @@ async def log_deleted(message: Message):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) удалил сообщения\n' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) ' \
+            f'удалил сообщения\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
 
@@ -347,6 +576,8 @@ async def log_log_conversation_changed(message: Message):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -359,7 +590,7 @@ async def log_log_conversation_changed(message: Message):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) ' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) ' \
             f'установил новую беседу в качестве лог-чата\n' \
             f'ID источника: {message.peer_id}\n' \
             f'Источник: {conversations_name}\n' \
@@ -377,6 +608,8 @@ async def log_cooldown_changed(message: Message, cooldown):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -389,7 +622,7 @@ async def log_cooldown_changed(message: Message, cooldown):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) ' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) ' \
             f'установил новую задержку.\n' \
             f'Задержка: {cooldown} second(s)\n' \
             f'Источник: {conversations_name}\n' \
@@ -407,6 +640,8 @@ async def log_permission_changed(message: Message, users_info, permission_lvl):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -419,8 +654,9 @@ async def log_permission_changed(message: Message, users_info, permission_lvl):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) изменил группу прав для ' \
-            f'данного @id{users_info[0].id} (пользователя) ' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) ' \
+            f'изменил группу прав для ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})) ' \
             f'на {permission_lvl} уровень ({PERMISSION_LVL[str(permission_lvl)]})\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
@@ -438,6 +674,8 @@ async def log_permission_changed_url(message: Message, users_info, permission_lv
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -450,8 +688,9 @@ async def log_permission_changed_url(message: Message, users_info, permission_lv
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) изменил группу прав для ' \
-            f'данного @id{users_info[0].id} (пользователя) ' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name})) ' \
+            f'изменил группу прав для ' \
+            f'данного @id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name})) ' \
             f'на {permission_lvl} уровень ({PERMISSION_LVL[str(permission_lvl)]}), ' \
             f'используя ссылку\n' \
             f'Источник: {conversations_name}\n' \
@@ -470,6 +709,8 @@ async def log_setting_changed(message: Message, setting, value):
 
     author_permission = DBtools.get_permission(message, message.from_id)
     author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
     if author_permission == 1:
         author_permission = 'Модератор'
 
@@ -482,8 +723,90 @@ async def log_setting_changed(message: Message, setting, value):
     offset = datetime.timezone(datetime.timedelta(hours=3))
     Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
 
-    title = f'@id{author_id} ({author_permission}) изменил настройку ' \
+    title = f'@id{author_id} ({author_permission} ({author_info[0].first_name} {author_info[0].last_name}))' \
+            f'изменил настройку ' \
             f'{setting} на значение {value}\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        random_id=0
+    )
+
+
+async def log_system_temp_ban_removed(peer_id, user_id):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    users_info = await bot.api.users.get(user_id)
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(
+        group_id=GROUP,
+        peer_ids=peer_id
+    )
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    offset = datetime.timezone(datetime.timedelta(hours=3))
+    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+
+    title = f'Системой сняла временную блокировку с ' \
+            f'@id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name}))\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        random_id=0
+    )
+
+
+async def log_system_mute_removed(peer_id, user_id):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    users_info = await bot.api.users.get(user_id)
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(
+        group_id=GROUP,
+        peer_ids=peer_id
+    )
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    offset = datetime.timezone(datetime.timedelta(hours=3))
+    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+
+    title = f'Системой сняла временнуое заглушение с ' \
+            f'@id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name}))\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        random_id=0
+    )
+
+
+async def log_system_warn_removed(peer_id, user_id):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    users_info = await bot.api.users.get(user_id)
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(
+        group_id=GROUP,
+        peer_ids=peer_id
+    )
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    offset = datetime.timezone(datetime.timedelta(hours=3))
+    Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+
+    title = f'Системой сняла все предупреждения с ' \
+            f'@id{users_info[0].id} (пользователя ({users_info[0].first_name} {users_info[0].last_name}))\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
 

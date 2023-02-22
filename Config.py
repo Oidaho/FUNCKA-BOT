@@ -1,7 +1,9 @@
 """
 Bot main token
 """
-TOKEN = 'vk1.a.iOQcZ5g1GtS_Kj7cAYEoy8FuoeTICSg0DXGZ7H5J-f9NP4Kp9LvvzHfbLNBZ_lwhdWr8Io41-LZ9Do9uSoSXlF9EeiQl3Ai0Ob_Oyvxr__KidaYuNLEVQdNL8fabRKJ-TnFdt2f-eHlxJBuVcf1fRQNceWf8lJ1a6IAiWydV2ozRgMyqsWTZIjn31eOJclUHKWWGszuPLBBWZS7i6HU8NA'
+TOKEN = 'vk1.a.iOQcZ5g1GtS_Kj7cAYEoy8FuoeTICSg0DXGZ7H5J-f9NP4Kp9LvvzHfbLNBZ_' \
+        'lwhdWr8Io41-LZ9Do9uSoSXlF9EeiQl3Ai0Ob_Oyvxr__' \
+        'KidaYuNLEVQdNL8fabRKJ-TnFdt2f-eHlxJBuVcf1fRQNceWf8lJ1a6IAiWydV2ozRgMyqsWTZIjn31eOJclUHKWWGszuPLBBWZS7i6HU8NA'
 
 """
 Master group id
@@ -11,7 +13,7 @@ GROUP = 218730916
 """
 Moderation content
 """
-BAN_TYPE = {
+TIME_TYPE = {
     'h': 'hour(s)',
     'd': 'day(s)',
     'm': 'month(s)',
@@ -48,7 +50,7 @@ ALIASES = {
     'warn': ['warn', 'Warn', 'варн', 'Варн', 'пред', 'Пред'],
     'warn_url': ['warn_url', 'Warn_url', 'варн_ссылкой', 'Варн_ссылкой', 'пред_ссылкой', 'Пред_ссылкой'],
 
-    'unwarn': ['unwarn', 'Unwarn', 'Разварн', 'разварн', 'Разпред', 'разпред'],
+    'unwarn': ['unwarn', 'Unwarn', 'Разварн', 'разварн', 'Распред', 'распред'],
     'unwarn_url': ['unwarn_url', 'Unwarn_url', 'Разварн_ссылкой', 'разварн_ссылкой', 'Распред_ссылкой', 'распред_ссылкой'],
 
     'delete': ['delete', 'Delete', 'Удалить', 'удалить'],
@@ -60,11 +62,10 @@ ALIASES = {
     'set_permission': ['set_permission', 'Set_permission', 'дать_права', 'Дать_права'],
     'set_permission_url': ['set_permission_url', 'Set_permission_url', 'дать_права_ссылкой', 'Дать_права_ссылкой'],
 
-    'mute': ['mute', 'Mute', 'мут', 'Мут'],
-    'mute_url': ['mute_url', 'Mute_url', 'мут_ссылкой', 'Мут_ссылкой'],
+    'mute': ['mute', 'Mute', 'мут', 'Мут', 'заглушить', 'Заглушить'],
+    'mute_url': ['mute_url', 'Mute_url', 'мут_ссылкой', 'Мут_ссылкой', 'заглушить_ссылкой', 'Заглушить_ссылкой'],
 
-    'unmute': ['unmute', 'Unmute', 'размут', 'Размут'],
-    'unmute_url': ['unmute_url', 'Unmute_url', 'размут_ссылкой', 'Размут_ссылкой'],
+    'unmute': ['unmute', 'Unmute', 'размут', 'Размут', 'разглушить', 'Разглушить'],
+    'unmute_url': ['unmute_url', 'Unmute_url', 'размут_ссылкой', 'Размут_ссылкой', 'разглушить_ссылкой', 'Разглушить_ссылкой'],
 
 }
-

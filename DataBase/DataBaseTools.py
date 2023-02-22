@@ -1,5 +1,6 @@
 from vkbottle.bot import Message
 from json import JSONDecodeError
+from Log import Logger as ol
 
 import time
 import json
@@ -63,6 +64,7 @@ def add_conversation(message: Message):
         },
         'PermanentBannedUsers': [],
         'TempBannedUsers': [],
+        'MutedUsers': [],
         'WarnedUsers': [],
         'MessageCooldownQueue': {
             'Cooldown': 0,
@@ -150,8 +152,6 @@ def add_temp_ban(message: Message, user_id, current_time, time_type):
             temp_ban_pattern = {
                 'UserID': user_id,
                 'UserURL': f'https://vk.com/id{user_id}',
-                'BannedByID': message.from_id,
-                'BannedByURL': f'https://vk.com/id{message.from_id}',
                 'BanTime': epoch_time,
                 'BanClearTime': epoch_time + summary_time
             }
@@ -177,10 +177,10 @@ def remove_temp_ban(message: Message, user_id):
                 if user['UserID'] == user_id:
                     conversation['TempBannedUsers'].pop(place)
 
-                with open("DataBase/DB.json", "w") as write_file:
-                    json.dump(database, write_file, indent=4)
+                    with open("DataBase/DB.json", "w") as write_file:
+                        json.dump(database, write_file, indent=4)
 
-                return True
+                    return True
 
             place += 1
 
@@ -202,6 +202,81 @@ def get_ban_kind(message: Message, user_id):
                     return 'permanent'
 
     return None
+
+
+def add_mute(message: Message, user_id, current_time, time_type):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    epoch_time = int(time.time())
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            for user in conversation['MutedUsers']:
+                if user['UserID'] == user_id:
+                    return False
+            modify = 1
+
+            if time_type == 'month(s)':
+                modify = 31 * 24 * 60 * 60
+            if time_type == 'day(s)':
+                modify = 24 * 60 * 60
+            if time_type == 'hour(s)':
+                modify = 60 * 60
+
+            summary_time = int(current_time) * modify
+
+            mute_pattern = {
+                'UserID': user_id,
+                'UserURL': f'https://vk.com/id{user_id}',
+                'MuteTime': epoch_time,
+                'MuteClearTime': epoch_time + summary_time
+            }
+
+            conversation['TempBannedUsers'].append(mute_pattern)
+
+            with open("DataBase/DB.json", "w") as write_file:
+                json.dump(database, write_file, indent=4)
+
+            return True
+
+    return False
+
+
+def remove_mute(message: Message, user_id):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            place = 0
+            for user in conversation['MutedUsers']:
+                if user['UserID'] == user_id:
+                    conversation['MutedUsers'].pop(place)
+
+                    with open("DataBase/DB.json", "w") as write_file:
+                        json.dump(database, write_file, indent=4)
+
+                    return True
+
+            place += 1
+
+    return False
+
+
+def check_mute(message: Message, user_id):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            for user in conversation['MutedUsers']:
+                if user['UserID'] == user_id:
+                    return True
+
+            return False
+
+    return False
 
 
 def add_warn(message: Message, user_id, warn_count):
@@ -463,7 +538,6 @@ def check_message_queue(message: Message):
 
     for conversation in database['Conversations']:
         if conversation['PeerID'] == message.peer_id:
-            place = 0
             for user in conversation['MessageCooldownQueue']['Queue']:
                 if user['UserID'] == message.from_id:
                     if user['NextDispatchTime'] <= epoch_time:
@@ -471,11 +545,6 @@ def check_message_queue(message: Message):
 
                     else:
                         return False
-
-                elif user['NextDispatchTime'] <= epoch_time:
-                    conversation['MessageCooldownQueue']['Queue'].pop(place)
-
-                place += 1
 
             return True
 
@@ -545,3 +614,41 @@ def change_setting(message: Message, setting: str, value: bool):
             return True
 
     return False
+
+
+async def check_provisional_punish():
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    epoch_time = int(time.time())
+
+    for conversation in database['Conversations']:
+        place = 0
+        for user in conversation['TempBannedUsers']:
+            if user['BanClearTime'] <= epoch_time:
+                conversation['TempBannedUsers'].pop(place)
+                await ol.log_system_temp_ban_removed(conversation['PeerID'], user['UserID'])
+            place += 1
+
+        place = 0
+        for user in conversation['MutedUsers']:
+            if user['MuteClearTime'] <= epoch_time:
+                conversation['MutedUsers'].pop(place)
+                await ol.log_system_mute_removed(conversation['PeerID'], user['UserID'])
+            place += 1
+
+        place = 0
+        for user in conversation['WarnedUsers']:
+            if user['WarnClearTime'] <= epoch_time:
+                conversation['WarnedUsers'].pop(place)
+                await ol.log_system_warn_removed(conversation['PeerID'], user['UserID'])
+            place += 1
+
+        place = 0
+        for user in conversation['MessageCooldownQueue']['Queue']:
+            if user['NextDispatchTime'] <= epoch_time:
+                conversation['MessageCooldownQueue']['Queue'].pop(place)
+            place += 1
+
+    with open("DataBase/DB.json", "w") as write_file:
+        json.dump(database, write_file, indent=4)
