@@ -1,9 +1,10 @@
-from vkbottle.bot import Message
-from json import JSONDecodeError
-from Log import Logger as ol
-
-import time
 import json
+import time
+from json import JSONDecodeError
+
+from vkbottle.bot import Message
+
+from Log import Logger as ol
 
 
 def create_pattern():
