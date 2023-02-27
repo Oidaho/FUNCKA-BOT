@@ -19,7 +19,6 @@ bot = Bot(token=TOKEN)
 bl = BotLabeler()
 
 
-# TODO: Ссылку на документацию в тайтл
 @bl.chat_message(
     HandleCommand(ALIASES['reference'], ['!', '/'], 0),
     HandleLogConversation(True),
@@ -88,7 +87,8 @@ async def ban(message: Message, args: Tuple[str]):
 
             title = f'@id{ban_users_info[0].id} (Пользователь) ' \
                     f'был заблокирован на {time_value} {time_type}.\n' \
-                    f'Блокировка будет снята: {Moscow_time}'
+                    f'Блокировка будет снята: {Moscow_time}\n' \
+                    f'По вопросам общаться к @id{345137546} (Администратору)'
 
             if time_value == '' and time_type == 'permanent':
                 if DBtools.add_permanent_ban(message, ban_users_info[0].id):
@@ -180,7 +180,8 @@ async def ban_url(message: Message, args: Tuple[str]):
 
                 title = f'@id{ban_users_info[0].id} (Пользователь) ' \
                         f'был заблокирован на {time_value} {time_type}.\n' \
-                        f'Блокировка будет снята: {Moscow_time}'
+                        f'Блокировка будет снята: {Moscow_time}\n' \
+                        f'По вопросам общаться к @id{345137546} (Администратору)'
 
                 if time_value == '' and time_type == 'permanent':
                     if DBtools.add_permanent_ban(message, ban_users_info[0].id):
