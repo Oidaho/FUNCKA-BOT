@@ -1,1 +1,1 @@
-# FUNCKA-BOT
+# FUNCKA-BOT (RU only)
