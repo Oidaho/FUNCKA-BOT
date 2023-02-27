@@ -7,7 +7,6 @@ from Rules.CustomRules import PermissionSelfIgnore, HandleLogConversation
 bot = Bot(token=TOKEN)
 bl = BotLabeler()
 
-# TODO: I must try to modify TTF. Right now it's working well, but have small power
 forbidden = [
     'смалкейс', 'смал кейс', 'смаллкейс', 'смалл кейс' 'смолкейс', 'смоллкейс', 'смолл кейс', 'смол кейс',
     'смалкеис', 'смал кеис', 'смаллкеис', 'смалл кеис' 'смолкеис', 'смоллкеис', 'смолл кеис', 'смол кеис',

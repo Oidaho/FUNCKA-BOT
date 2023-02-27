@@ -28,8 +28,7 @@ async def add_to_message_queue(message: Message):
             await message.answer(title)
             await ol.log_system_banned(message, mute_users_info, time, time_type, reason)
 
-            # TODO: убрать коммент чтоб банило
-            '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
+            await bot.api.messages.remove_chat_user(message.chat_id, message.reply_message.from_id)
 
     elif DBtools.get_cooldown(message) != 0:
         if DBtools.check_message_queue(message):
