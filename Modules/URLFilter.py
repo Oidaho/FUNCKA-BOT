@@ -24,7 +24,7 @@ exceptions = [
     'https://www.youtube.com/c/EXBO_official',
     'https://www.tiktok.com/@stalcraft_official',
     'https://www.facebook.com/stalcraft.official',
-    'https://twitter.com/STALCRAFT_ENG',  # URL not working (?)
+    'https://twitter.com/STALCRAFT_ENG',
     'https://www.instagram.com/stalcraft_official',
     'https://www.instagram.com/exbo_studio'
  ]
@@ -37,6 +37,7 @@ exceptions = [
 )
 async def check_URL(message: Message):
     extractor = URLExtract()
+
     if extractor.has_urls(message.text):
         found = False
 
