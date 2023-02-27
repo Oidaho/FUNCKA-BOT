@@ -3,6 +3,7 @@ from urlextract import URLExtract
 from vkbottle import ABCRule, Bot
 from DataBase import DataBaseTools as DBtools
 from vkbottle.tools.dev.mini_types.base import BaseMessageMin
+
 from Config import GROUP, TOKEN
 
 
@@ -178,7 +179,7 @@ class PermissionSelfIgnore(ABCRule[BaseMessageMin]):
 
 class PermissionSameIgnore(ABCRule[BaseMessageMin]):
     def __init__(self, ignore: Optional[bool] = None):
-        self.ignore = ignore or STANDARD_PERMISSION
+        self.ignore = ignore or False
         self.sep = " "
 
     async def check(self, message: BaseMessageMin) -> bool:
