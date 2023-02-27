@@ -6,7 +6,7 @@ TOKEN = ' '
 """
 Master group id
 """
-GROUP = 218730916
+GROUP = 0
 
 """
 Moderation content
