@@ -1,7 +1,7 @@
 """
 Bot main token
 """
-TOKEN = ''
+TOKEN = ' '
 
 """
 Master group id
