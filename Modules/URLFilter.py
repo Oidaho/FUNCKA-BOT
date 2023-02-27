@@ -24,7 +24,7 @@ exceptions = [
     'https://www.youtube.com/c/EXBO_official',
     'https://www.tiktok.com/@stalcraft_official',
     'https://www.facebook.com/stalcraft.official',
-    'https://twitter.com/stalcraft_of',  # URL not working (?)
+    'https://twitter.com/STALCRAFT_ENG',  # URL not working (?)
     'https://www.instagram.com/stalcraft_official',
     'https://www.instagram.com/exbo_studio'
  ]

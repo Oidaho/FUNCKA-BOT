@@ -623,32 +623,58 @@ async def check_provisional_punish():
     epoch_time = int(time.time())
 
     for conversation in database['Conversations']:
-        place = 0
-        for user in conversation['TempBannedUsers']:
-            if user['BanClearTime'] <= epoch_time:
-                conversation['TempBannedUsers'].pop(place)
-                await ol.log_system_temp_ban_removed(conversation['PeerID'], user['UserID'])
-            place += 1
+        if conversation['TempBannedUsers']:
+            place = 0
+            for user in conversation['TempBannedUsers']:
+                if user['BanClearTime'] <= epoch_time:
+                    conversation['TempBannedUsers'].pop(place)
+                    await ol.log_system_temp_ban_removed(conversation['PeerID'], user['UserID'])
+                place += 1
 
-        place = 0
-        for user in conversation['MutedUsers']:
-            if user['MuteClearTime'] <= epoch_time:
-                conversation['MutedUsers'].pop(place)
-                await ol.log_system_mute_removed(conversation['PeerID'], user['UserID'])
-            place += 1
+        if conversation['MutedUsers']:
+            place = 0
+            for user in conversation['MutedUsers']:
+                if user['MuteClearTime'] <= epoch_time:
+                    conversation['MutedUsers'].pop(place)
+                    await ol.log_system_mute_removed(conversation['PeerID'], user['UserID'])
+                place += 1
 
-        place = 0
-        for user in conversation['WarnedUsers']:
-            if user['WarnClearTime'] <= epoch_time:
-                conversation['WarnedUsers'].pop(place)
-                await ol.log_system_warn_removed(conversation['PeerID'], user['UserID'])
-            place += 1
+        if conversation['WarnedUsers']:
+            place = 0
+            for user in conversation['WarnedUsers']:
+                if user['WarnClearTime'] <= epoch_time:
+                    conversation['WarnedUsers'].pop(place)
+                    await ol.log_system_warn_removed(conversation['PeerID'], user['UserID'])
+                place += 1
 
-        place = 0
-        for user in conversation['MessageCooldownQueue']['Queue']:
-            if user['NextDispatchTime'] <= epoch_time:
-                conversation['MessageCooldownQueue']['Queue'].pop(place)
-            place += 1
+        if conversation['MessageCooldownQueue']['Queue']:
+            place = 0
+            for user in conversation['MessageCooldownQueue']['Queue']:
+                if user['NextDispatchTime'] <= epoch_time:
+                    conversation['MessageCooldownQueue']['Queue'].pop(place)
+                place += 1
 
     with open("DataBase/DB.json", "w") as write_file:
         json.dump(database, write_file, indent=4)
+
+
+def get_punished_users():
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    conversations = {}
+
+    for conversation in database['Conversations']:
+        users = []
+
+        if conversation['PermanentBannedUsers']:
+            for user in conversation['PermanentBannedUsers']:
+                users.append(user['UserID'])
+
+        if conversation['TempBannedUsers']:
+            for user in conversation['TempBannedUsers']:
+                users.append(user['UserID'])
+
+        conversations[conversation['PeerID']] = users
+
+    return conversations

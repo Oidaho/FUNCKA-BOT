@@ -95,16 +95,14 @@ async def ban(message: Message, args: Tuple[str]):
                     await message.answer(title)
                     await ol.log_banned(message, ban_users_info, time_value, time_type)
 
-                    # TODO: убрать коммент чтоб банило
-                    '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
+                    await bot.api.messages.remove_chat_user(message.chat_id, message.reply_message.from_id)
 
             else:
                 if DBtools.add_temp_ban(message, ban_users_info[0].id, time_value, time_type):
                     await message.answer(title)
                     await ol.log_banned(message, ban_users_info, time_value, time_type)
 
-                    # TODO: убрать коммент чтоб банило
-                    '''await bot.api.messages.remove_chat_user(message.reply_message.from_id)'''
+                    await bot.api.messages.remove_chat_user(message.chat_id, message.reply_message.from_id)
 
             message_id = message.reply_message.conversation_message_id
             peer_id = message.peer_id

@@ -10,7 +10,7 @@ bl = BotLabeler()
 
 
 @bl.chat_message(
-    # PermissionSelfIgnore(1),
+    PermissionSelfIgnore(1),
     HandleLogConversation(False),
     blocking=False
 )
