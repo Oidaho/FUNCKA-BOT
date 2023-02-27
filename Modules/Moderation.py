@@ -27,9 +27,9 @@ bl = BotLabeler()
     HandleRepliedMessages(False)
 )
 async def reference(message: Message):
-    url = ''
+    url = 'https://github.com/Oidaho/FUNCKA-BOT/blob/master/README.md'
 
-    title = f'{url}]'
+    title = f'Перейдя по этой ссылке, вы сможете найти документацию на GitHub:\n {url}]'
     await message.answer(title)
 
 
