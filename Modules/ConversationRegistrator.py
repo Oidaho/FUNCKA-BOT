@@ -8,4 +8,4 @@ bl = BotLabeler()
     blocking=False
 )
 async def check_conversation(message: Message):
-    DBtools.add_conversation(message)
+    DBtools.add_conversation(message)  # ignore if exist in db
