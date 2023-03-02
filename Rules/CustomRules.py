@@ -6,7 +6,6 @@ from vkbottle.tools.dev.mini_types.base import BaseMessageMin
 
 from Config import GROUP, TOKEN
 
-
 bot = Bot(token=TOKEN)
 
 DEFAULT_PREFIXES = ["!", "/"]
@@ -174,64 +173,6 @@ class PermissionSelfIgnore(ABCRule[BaseMessageMin]):
             return False
 
         else:
-            return True
-
-
-class PermissionSameIgnore(ABCRule[BaseMessageMin]):
-    def __init__(self, ignore: Optional[bool] = None):
-        self.ignore = ignore or False
-        self.sep = " "
-
-    async def check(self, message: BaseMessageMin) -> bool:
-        if message.reply_message is not None:
-            target_user_id = message.reply_message.from_id
-            target_user_permission = DBtools.get_permission(message, target_user_id)
-            author_user_permission = DBtools.get_permission(message, message.from_id)
-            if target_user_permission < author_user_permission:
-                return True
-
-            else:
-                return False
-
-        elif message.fwd_messages:
-            if all([DBtools.get_permission(msg, msg.from_id) < DBtools.get_permission(message, message.from_id) for msg in message.fwd_messages]):
-                return True
-
-            else:
-                return False
-
-        else:
-            text = message.text
-            if self.sep in text:
-                cut = text.find(self.sep)
-                text = text[cut:]
-                args = text.split(self.sep)
-                extractor = URLExtract()
-                for arg in args:
-                    print(arg)
-                    if extractor.has_urls(arg):
-                        if arg.startswith('https://vk.com/id'):
-                            shortname = int(arg.replace('https://vk.com/id', ''))
-                            target_users_info = await bot.api.users.get([shortname])
-                            target_user_permission = DBtools.get_permission(message, target_users_info[0].id)
-                            author_user_permission = DBtools.get_permission(message, message.from_id)
-                            if target_user_permission < author_user_permission:
-                                return True
-
-                            else:
-                                return False
-
-                        elif arg.startswith('https://vk.com/'):
-                            shortname = arg.replace('https://vk.com/', '')
-                            target_users_info = await bot.api.users.get([shortname])
-                            target_user_permission = DBtools.get_permission(message, target_users_info[0].id)
-                            author_user_permission = DBtools.get_permission(message, message.from_id)
-                            if target_user_permission < author_user_permission:
-                                return True
-
-                            else:
-                                return False
-
             return True
 
 
