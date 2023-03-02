@@ -1,7 +1,7 @@
 """
 Bot main token
 """
-TOKEN = ' '
+TOKEN = ''
 
 """
 Master group id
@@ -49,12 +49,14 @@ ALIASES = {
     'warn_url': ['warn_url', 'Warn_url', 'варн_ссылкой', 'Варн_ссылкой', 'пред_ссылкой', 'Пред_ссылкой'],
 
     'unwarn': ['unwarn', 'Unwarn', 'Разварн', 'разварн', 'Распред', 'распред'],
-    'unwarn_url': ['unwarn_url', 'Unwarn_url', 'Разварн_ссылкой', 'разварн_ссылкой', 'Распред_ссылкой', 'распред_ссылкой'],
+    'unwarn_url': ['unwarn_url', 'Unwarn_url', 'Разварн_ссылкой', 'разварн_ссылкой', 'Распред_ссылкой',
+                   'распред_ссылкой'],
 
     'delete': ['delete', 'Delete', 'Удалить', 'удалить'],
     'reference': ['reference', 'Reference', 'справка', 'Справка'],
     'set_cooldown': ['set_cooldown', 'Set_cooldown', 'установить_задержку', 'установить_задержку'],
-    'set_log_conversation': ['set_log_conversation', 'Set_log_conversation', 'установить_лог_беседу', 'Установить_лог_беседу'],
+    'set_log_conversation': ['set_log_conversation', 'Set_log_conversation', 'установить_лог_беседу',
+                             'Установить_лог_беседу'],
     'change_setting': ['change_setting', 'Change_setting', 'изменить_настройку', 'Изменить_настройку'],
 
     'set_permission': ['set_permission', 'Set_permission', 'дать_права', 'Дать_права'],
@@ -64,6 +66,9 @@ ALIASES = {
     'mute_url': ['mute_url', 'Mute_url', 'мут_ссылкой', 'Мут_ссылкой', 'заглушить_ссылкой', 'Заглушить_ссылкой'],
 
     'unmute': ['unmute', 'Unmute', 'размут', 'Размут', 'разглушить', 'Разглушить'],
-    'unmute_url': ['unmute_url', 'Unmute_url', 'размут_ссылкой', 'Размут_ссылкой', 'разглушить_ссылкой', 'Разглушить_ссылкой'],
+    'unmute_url': ['unmute_url', 'Unmute_url', 'размут_ссылкой', 'Размут_ссылкой', 'разглушить_ссылкой',
+                   'Разглушить_ссылкой'],
 
 }
+
+STUFF_ADMIN = 0

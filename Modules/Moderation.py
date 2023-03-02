@@ -3,7 +3,7 @@ import time
 
 from vkbottle.bot import Bot, BotLabeler, Message
 from typing import Tuple
-from Config import TIME_TYPE, ALIASES, TOKEN, SETTINGS, PERMISSION_LVL, GROUP
+from Config import TIME_TYPE, ALIASES, TOKEN, SETTINGS, GROUP, STUFF_ADMIN
 from Log import Logger as ol
 from Rules.CustomRules import (
     HandleCommand,
@@ -88,7 +88,7 @@ async def ban(message: Message, args: Tuple[str]):
             title = f'@id{ban_users_info[0].id} (Пользователь) ' \
                     f'был заблокирован на {time_value} {time_type}.\n' \
                     f'Блокировка будет снята: {Moscow_time}\n' \
-                    f'По вопросам общаться к @id{345137546} (Администратору)'
+                    f'По вопросам общаться к @id{STUFF_ADMIN} (Администратору)'
 
             if time_value == '' and time_type == 'permanent':
                 if DBtools.add_permanent_ban(message, ban_users_info[0].id):
@@ -181,7 +181,7 @@ async def ban_url(message: Message, args: Tuple[str]):
                 title = f'@id{ban_users_info[0].id} (Пользователь) ' \
                         f'был заблокирован на {time_value} {time_type}.\n' \
                         f'Блокировка будет снята: {Moscow_time}\n' \
-                        f'По вопросам общаться к @id{345137546} (Администратору)'
+                        f'По вопросам общаться к @id{STUFF_ADMIN} (Администратору)'
 
                 if time_value == '' and time_type == 'permanent':
                     if DBtools.add_permanent_ban(message, ban_users_info[0].id):
@@ -341,14 +341,20 @@ async def warn(message: Message):
         if warn_users_info:
             warn_count = DBtools.get_warn_count(message, warn_users_info[0].id)
 
-            if DBtools.add_warn(message, warn_users_info[0].id, warn_count + 1):
-                offset = datetime.timezone(datetime.timedelta(days=1, hours=3))
-                Moscow_time = str(datetime.datetime.now(offset)).split('.')[0]
+            epoch = int(time.time()) + (24 * 60 * 60 * 1)
 
+            offset = datetime.timedelta(hours=3)
+            tz = datetime.timezone(offset, name='МСК')
+
+            Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
+
+            if DBtools.add_warn(message, warn_users_info[0].id, warn_count + 1):
                 await ol.log_warned(message, warn_users_info, warn_count + 1)
                 title = f'@id{warn_users_info[0].id} (Пользователь) ' \
-                        f'получил предупреждение [{warn_count + 1}/3].\n' \
-                        f'Предупреждения будут сняты: {Moscow_time}'
+                        f'получил предупреждение [{warn_count + 1}/3].\n'
+                if warn_count + 1 == 3:
+                    title += f'Предупреждения будут сняты: {Moscow_time}'
+
                 await message.answer(title)
 
             if warn_count + 1 == 3:
@@ -356,13 +362,6 @@ async def warn(message: Message):
 
                 time_value = '1'
                 time_type = TIME_TYPE['d']
-
-                epoch = int(time.time()) + (24 * 60 * 60 * 1)
-
-                offset = datetime.timedelta(hours=3)
-                tz = datetime.timezone(offset, name='МСК')
-
-                Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
 
                 if DBtools.add_mute(message, warn_users_info[0].id, time_value, time_type):
                     title = f'@id{warn_users_info[0].id} (Пользователь) ' \
@@ -405,8 +404,18 @@ async def warn_url(message: Message, args: Tuple[str]):
             if warn_users_info:
                 warn_count = DBtools.get_warn_count(message, warn_users_info[0].id)
 
+                epoch = int(time.time()) + (24 * 60 * 60 * 1)
+
+                offset = datetime.timedelta(hours=3)
+                tz = datetime.timezone(offset, name='МСК')
+
+                Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
+
                 title = f'@id{warn_users_info[0].id} (Пользователь) ' \
-                        f'получил предупреждение [{warn_count + 1}/3].'
+                        f'получил предупреждение [{warn_count + 1}/3].\n'
+                if warn_count + 1 == 3:
+                    title += f'Предупреждения будут сняты: {Moscow_time}'
+
                 await message.answer(title)
 
                 if DBtools.add_warn(message, warn_users_info[0].id, warn_count + 1):
@@ -420,7 +429,8 @@ async def warn_url(message: Message, args: Tuple[str]):
 
                     if DBtools.add_mute(message, warn_users_info[0].id, time_value, time_type):
                         title = f'@id{warn_users_info[0].id} (Пользователь) ' \
-                                f'был заглушен на {time_value} {time_type}.'
+                                f'был заглушен на {time_value} {time_type}.\n' \
+                                f'Заглушение будет снято: {Moscow_time}'
                         await message.answer(title)
                         await ol.log_system_muted(message, warn_users_info, time_value, time_type, reason)
 
@@ -636,9 +646,6 @@ async def set_permission(message: Message, args: Tuple[str]):
 
             if users_info:
                 if DBtools.set_permission(message, users_info[0].id, permission_lvl):
-                    title = f'Группа прав @id{users_info[0].id} (пользователя), ' \
-                            f'была изменена на {permission_lvl} ({PERMISSION_LVL[str(permission_lvl)]}).'
-                    await message.answer(title)
                     await ol.log_permission_changed(message, users_info, permission_lvl)
 
         except TypeError:
@@ -673,9 +680,6 @@ async def set_permission_url(message: Message, args: Tuple[str]):
 
                 if DBtools.set_permission(message, users_info[0].id, permission_lvl):
                     await ol.log_permission_changed_url(message, users_info, permission_lvl)
-                    title = f'Группа прав @id{users_info[0].id} (пользователя), ' \
-                            f'была изменена на {permission_lvl} ({PERMISSION_LVL[str(permission_lvl)]}).'
-                    await message.answer(title)
 
     except TypeError:
         pass
