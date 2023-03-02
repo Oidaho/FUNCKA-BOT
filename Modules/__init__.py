@@ -1,3 +1,15 @@
-from . import ForbiddenFilter, MessageQueueHandler, Moderation, ConversationRegistrator, URLFilter
+from . import (
+    ForbiddenFilter,
+    MessageQueueHandler,
+    Moderation,
+    ConversationRegistrator,
+    URLFilter
+)
 
-labelers = [ConversationRegistrator.bl, MessageQueueHandler.bl, Moderation.bl, ForbiddenFilter.bl, URLFilter.bl]
+labelers = [
+    ConversationRegistrator.bl,
+    MessageQueueHandler.bl,
+    Moderation.bl,
+    ForbiddenFilter.bl,
+    URLFilter.bl
+]
