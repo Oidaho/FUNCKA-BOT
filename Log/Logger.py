@@ -1,5 +1,6 @@
 import datetime
-import json, time
+import json
+import time
 
 from vkbottle.bot import Bot, Message
 
