@@ -16,6 +16,9 @@ bl = BotLabeler()
 )
 async def add_to_message_queue(message: Message):
     if DBtools.check_mute(message, message.from_id):
+        DBtools.remove_mute(message, message.from_id)
+        
+        
         reason = 'Нарушено заглушение'
 
         mute_users_info = await bot.api.users.get(message.from_id)
