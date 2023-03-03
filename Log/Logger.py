@@ -851,7 +851,7 @@ async def log_system_temp_ban_removed(peer_id, user_id):
 
     Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
 
-    title = f'Системой сняла временную блокировку с ' \
+    title = f'Система сняла временную блокировку с ' \
             f'@id{users_info[0].id} (пользователя) ({users_info[0].first_name} {users_info[0].last_name})\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
@@ -882,7 +882,7 @@ async def log_system_mute_removed(peer_id, user_id):
 
     Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
 
-    title = f'Системой сняла временное заглушение с ' \
+    title = f'Система сняла временное заглушение с ' \
             f'@id{users_info[0].id} (пользователя) ({users_info[0].first_name} {users_info[0].last_name})\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
@@ -913,7 +913,7 @@ async def log_system_warn_removed(peer_id, user_id):
 
     Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
 
-    title = f'Системой сняла все предупреждения с ' \
+    title = f'Система сняла все предупреждения с ' \
             f'@id{users_info[0].id} (пользователя) ({users_info[0].first_name} {users_info[0].last_name})\n' \
             f'Источник: {conversations_name}\n' \
             f'Время (МСК): {Moscow_time}'
