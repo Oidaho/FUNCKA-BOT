@@ -28,6 +28,14 @@ async def add_to_message_queue(message: Message):
                     f'был заблокирован на {time} {time_type}.'
             await message.answer(title)
             await ol.log_system_banned(message, mute_users_info, time, time_type, reason)
+            
+            message_id = message.conversation_message_id
+            await bot.api.messages.delete(
+                group_id=GROUP,
+                peer_id=message.peer_id,
+                cmids=message_id,
+                delete_for_all=True
+            )
 
             await bot.api.messages.remove_chat_user(message.chat_id, message.from_id)
 
@@ -45,6 +53,7 @@ async def add_to_message_queue(message: Message):
                     f'@id{message.from_id} (Пользователь) получил предупреждение [{warn_count + 1}/3].'
             await message.answer(title)
             await ol.log_system_warned(message, warn_users_info, warn_count + 1, reason)
+            
             message_id = message.conversation_message_id
             await bot.api.messages.delete(
                 group_id=GROUP,
