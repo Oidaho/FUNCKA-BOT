@@ -28,7 +28,7 @@ bl = BotLabeler()
 async def reference(message: Message):
     url = 'https://github.com/Oidaho/FUNCKA-BOT/blob/master/README.md'
 
-    title = f'Перейдя по этой ссылке, вы сможете найти документацию на GitHub:\n {url}]'
+    title = f'Перейдя по этой ссылке, вы сможете найти документацию на GitHub:\n {url}'
     await message.answer(title)
 
 
@@ -88,7 +88,7 @@ async def ban(message: Message, args: Tuple[str]):
             title = f'@id{ban_users_info[0].id} (Пользователь) ' \
                     f'был заблокирован на {time_value} {time_type}.\n' \
                     f'Блокировка будет снята: {Moscow_time}\n' \
-                    f'По вопросам общаться к @id{STUFF_ADMIN} (Администратору)'
+                    f'По снятию блокировки общаться к @id{STUFF_ADMIN} (Администратору)'
 
             if time_value == '' and time_type == 'permanent':
                 if DBtools.add_permanent_ban(message, ban_users_info[0].id):
@@ -181,7 +181,7 @@ async def ban_url(message: Message, args: Tuple[str]):
                 title = f'@id{ban_users_info[0].id} (Пользователь) ' \
                         f'был заблокирован на {time_value} {time_type}.\n' \
                         f'Блокировка будет снята: {Moscow_time}\n' \
-                        f'По вопросам общаться к @id{STUFF_ADMIN} (Администратору)'
+                        f'По снятию блокировки общаться к @id{STUFF_ADMIN} (Администратору)'
 
                 if time_value == '' and time_type == 'permanent':
                     if DBtools.add_permanent_ban(message, ban_users_info[0].id):
@@ -352,7 +352,7 @@ async def warn(message: Message):
                 await ol.log_warned(message, warn_users_info, warn_count + 1)
                 title = f'@id{warn_users_info[0].id} (Пользователь) ' \
                         f'получил предупреждение [{warn_count + 1}/3].\n'
-                if warn_count + 1 == 3:
+                if warn_count + 1 != 3:
                     title += f'Предупреждения будут сняты: {Moscow_time}'
 
                 await message.answer(title)
@@ -421,7 +421,7 @@ async def warn_url(message: Message, args: Tuple[str]):
                 if DBtools.add_warn(message, warn_users_info[0].id, warn_count + 1):
                     await ol.log_warned_url(message, warn_users_info, warn_count + 1)
 
-                if warn_count + 1 == 3:
+                if warn_count + 1 != 3:
                     reason = 'Получено 3 предупреждения'
 
                     time_value = '3'
@@ -735,8 +735,6 @@ async def change_setting(message: Message, args: Tuple[str]):
 
         if setting in SETTINGS and isinstance(value, bool):
             if DBtools.change_setting(message, setting, value):
-                title = f'Настройка {setting} изменена на значение {value}.'
-                await message.answer(title)
                 await ol.log_setting_changed(message, setting, value)
 
     except TypeError:
