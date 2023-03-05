@@ -679,3 +679,24 @@ def get_punished_users():
         conversations[conversation['PeerID']] = users
 
     return conversations
+
+
+def remove_from_queue(message: Message, user_id: int):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            place = 0
+            for user in conversation['MessageCooldownQueue']['Queue']:
+                if user['UserID'] == user_id:
+                    conversation['MessageCooldownQueue']['Queue'].pop(place)
+
+                    with open("DataBase/DB.json", "w") as write_file:
+                        json.dump(database, write_file, indent=4)
+
+                    return True
+
+                place += 1
+
+    return False
