@@ -3,7 +3,6 @@ Bot main token
 """
 
 TOKEN = ''
-
 """
 Master group id
 """
@@ -40,35 +39,32 @@ SETTINGS = [
 ]
 
 ALIASES = {
-    'ban': ['ban', 'Ban', 'бан', 'Бан', 'блок', 'Блок'],
-    'ban_url': ['ban_url', 'Ban_url', 'бан_ссылкой', 'Бан_cсылкой', 'блок_ссылкой', 'Блок_ссылкой'],
+    'ban': ['ban', 'Ban'],
+    'ban_url': ['ban_url', 'Ban_url'],
 
-    'unban': ['Unban', 'unban', 'Разбан', 'Разбан', 'Разблок', 'разблок'],
-    'unban_url': ['Unban_url', 'unban_url', 'Разбан_ссылкой', 'Разбан_ссылкой', 'Разблок_ссылкой', 'разблок_ссылкой'],
+    'unban': ['Unban', 'unban'],
+    'unban_url': ['Unban_url', 'unban_url'],
 
-    'warn': ['warn', 'Warn', 'варн', 'Варн', 'пред', 'Пред'],
-    'warn_url': ['warn_url', 'Warn_url', 'варн_ссылкой', 'Варн_ссылкой', 'пред_ссылкой', 'Пред_ссылкой'],
+    'warn': ['warn', 'Warn'],
+    'warn_url': ['warn_url', 'Warn_url'],
 
-    'unwarn': ['unwarn', 'Unwarn', 'Разварн', 'разварн', 'Распред', 'распред'],
-    'unwarn_url': ['unwarn_url', 'Unwarn_url', 'Разварн_ссылкой', 'разварн_ссылкой', 'Распред_ссылкой',
-                   'распред_ссылкой'],
+    'unwarn': ['unwarn', 'Unwarn'],
+    'unwarn_url': ['unwarn_url', 'Unwarn_url'],
 
-    'delete': ['delete', 'Delete', 'Удалить', 'удалить'],
-    'reference': ['reference', 'Reference', 'справка', 'Справка'],
-    'set_cooldown': ['set_cooldown', 'Set_cooldown', 'установить_задержку', 'установить_задержку'],
-    'set_log_conversation': ['set_log_conversation', 'Set_log_conversation', 'установить_лог_беседу',
-                             'Установить_лог_беседу'],
-    'change_setting': ['change_setting', 'Change_setting', 'изменить_настройку', 'Изменить_настройку'],
+    'delete': ['delete', 'Delete'],
+    'reference': ['reference', 'Reference'],
+    'set_cooldown': ['set_cooldown', 'Set_cooldown'],
+    'set_log_conversation': ['set_log_conversation', 'Set_log_conversation'],
+    'change_setting': ['change_setting', 'Change_setting'],
 
-    'set_permission': ['set_permission', 'Set_permission', 'дать_права', 'Дать_права'],
-    'set_permission_url': ['set_permission_url', 'Set_permission_url', 'дать_права_ссылкой', 'Дать_права_ссылкой'],
+    'set_permission': ['set_permission', 'Set_permission'],
+    'set_permission_url': ['set_permission_url', 'Set_permission_url'],
 
-    'mute': ['mute', 'Mute', 'мут', 'Мут', 'заглушить', 'Заглушить'],
-    'mute_url': ['mute_url', 'Mute_url', 'мут_ссылкой', 'Мут_ссылкой', 'заглушить_ссылкой', 'Заглушить_ссылкой'],
+    'mute': ['mute', 'Mute'],
+    'mute_url': ['mute_url', 'Mute_url'],
 
-    'unmute': ['unmute', 'Unmute', 'размут', 'Размут', 'разглушить', 'Разглушить'],
-    'unmute_url': ['unmute_url', 'Unmute_url', 'размут_ссылкой', 'Размут_ссылкой', 'разглушить_ссылкой',
-                   'Разглушить_ссылкой'],
+    'unmute': ['unmute', 'Unmute'],
+    'unmute_url': ['unmute_url', 'Unmute_url'],
 
     'remove_from_queue': ['remove_from_queue', 'Remove_from_queue'],
     'remove_from_queue_url': ['remove_from_queue_url', 'Remove_from_queue_url']
