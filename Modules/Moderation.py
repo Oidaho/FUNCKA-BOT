@@ -132,9 +132,11 @@ async def ban_url(message: Message, args: Tuple[str]):
         elif args[2].startswith('https://vk.com/'):
             shortname = args[2].replace('https://vk.com/', '')
 
+        print(shortname)
         if shortname != '':
             ban_users_info = await bot.api.users.get([shortname])
 
+            print(ban_users_info)
             if ban_users_info:
                 offset = datetime.timedelta(hours=3)
                 tz = datetime.timezone(offset, name='МСК')
@@ -188,14 +190,14 @@ async def ban_url(message: Message, args: Tuple[str]):
                         await message.answer(title)
                         await ol.log_banned_url(message, ban_users_info, time_value, time_type)
 
-                        await bot.api.messages.remove_chat_user(message.chat_id, message.reply_message.from_id)
+                        await bot.api.messages.remove_chat_user(message.chat_id, ban_users_info[0].id)
 
                 else:
                     if DBtools.add_temp_ban(message, ban_users_info[0].id, time_value, time_type):
                         await message.answer(title)
                         await ol.log_banned_url(message, ban_users_info, time_value, time_type)
 
-                        await bot.api.messages.remove_chat_user(message.chat_id, message.reply_message.from_id)
+                        await bot.api.messages.remove_chat_user(message.chat_id, ban_users_info[0].id)
 
 
 @bl.chat_message(
