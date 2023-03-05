@@ -37,36 +37,39 @@ exceptions = [
     blocking=False
 )
 async def check_URL(message: Message):
-    extractor = URLExtract()
+    if message.deleted is None:
 
-    if extractor.has_urls(message.text):
-        found = False
+        extractor = URLExtract()
 
-        for url in exceptions:
-            if message.text.startswith(url):
-                found = True
+        if extractor.has_urls(message.text):
+            found = False
 
-        if not found:
-            mute_users_info = await bot.api.users.get(message.from_id)
+            for url in exceptions:
+                if message.text.startswith(url):
+                    found = True
 
-            message_id = message.conversation_message_id
-            await bot.api.messages.delete(
-                group_id=GROUP,
-                peer_id=message.peer_id,
-                cmids=message_id,
-                delete_for_all=True
-            )
+            if not found:
+                mute_users_info = await bot.api.users.get(message.from_id)
 
-            time_value = '1'
-            time_type = 'hour(s)'
+                message_id = message.conversation_message_id
+                await bot.api.messages.delete(
+                    group_id=GROUP,
+                    peer_id=message.peer_id,
+                    cmids=message_id,
+                    delete_for_all=True
+                )
+                message.deleted = True
 
-            reason = 'Внешние ссылки'
+                time_value = '1'
+                time_type = 'hour(s)'
 
-            await ol.log_system_muted(message, mute_users_info, time_value, time_type, reason)
+                reason = 'Внешние ссылки'
 
-            title = f'Подозрительная активность @id{mute_users_info[0].id} (участника) (Внешние ссылки)\n'\
-                    f'@id{mute_users_info[0].id} (Пользователь) ' \
-                    f'был заглушен на {time_value} {time_type} в целях безопасности.'
-            await message.answer(title)
+                await ol.log_system_muted(message, mute_users_info, time_value, time_type, reason)
 
-            DBtools.add_mute(message, message.from_id, time_value, time_type)
+                title = f'Подозрительная активность @id{mute_users_info[0].id} (участника) (Внешние ссылки)\n'\
+                        f'@id{mute_users_info[0].id} (Пользователь) ' \
+                        f'был заглушен на {time_value} {time_type} в целях безопасности.'
+                await message.answer(title)
+
+                DBtools.add_mute(message, message.from_id, time_value, time_type)
