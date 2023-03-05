@@ -603,8 +603,6 @@ async def unwarn_url(message: Message, args: Tuple[str]):
 )
 async def delete(message: Message):
     if message.fwd_messages:
-        await ol.log_deleted(message)
-
         for msg in message.fwd_messages:
             message_id = msg.conversation_message_id
             peer_id = message.peer_id
@@ -615,9 +613,9 @@ async def delete(message: Message):
                 delete_for_all=True
             )
 
-    else:
         await ol.log_deleted(message)
 
+    else:
         message_id = message.reply_message.conversation_message_id
         peer_id = message.peer_id
         await bot.api.messages.delete(
@@ -626,6 +624,7 @@ async def delete(message: Message):
             cmids=message_id,
             delete_for_all=True
         )
+        await ol.log_deleted(message)
 
 
 @bl.chat_message(
@@ -742,3 +741,43 @@ async def change_setting(message: Message, args: Tuple[str]):
 
     except TypeError:
         pass
+
+
+@bl.chat_message(
+    HandleCommand(ALIASES['remove_from_queue'], ['!', '/'], 0),
+    HandleLogConversation(False),
+    PermissionAccess(1),
+    HandleRepliedMessages(True)
+)
+async def remove_from_queue(message: Message):
+    if not message.fwd_messages:
+        users_info = await bot.api.users.get(message.reply_message.from_id)
+
+        if users_info:
+            if DBtools.remove_from_queue(message, users_info[0].id):
+                await ol.log_removed_from_queue_url(message, users_info)
+
+
+@bl.chat_message(
+    HandleCommand(ALIASES['remove_from_queue_url'], ['!', '/'], 1),
+    HandleLogConversation(False),
+    PermissionAccess(1),
+    HandleRepliedMessages(False)
+)
+async def remove_from_queue_url(message: Message, args: Tuple[str]):
+    extractor = URLExtract()
+
+    if extractor.has_urls(args[0]):
+        shortname = ''
+
+        if args[1].startswith('https://vk.com/id'):
+            shortname = int(args[0].replace('https://vk.com/id', ''))
+
+        elif args[1].startswith('https://vk.com/'):
+            shortname = args[0].replace('https://vk.com/', '')
+
+        if shortname != '':
+            users_info = await bot.api.users.get([shortname])
+
+            if DBtools.remove_from_queue(message, users_info[0].id):
+                await ol.log_removed_from_queue_url(message, users_info)
