@@ -1,6 +1,7 @@
 """
 Bot main token
 """
+
 TOKEN = ''
 
 """
@@ -68,6 +69,9 @@ ALIASES = {
     'unmute': ['unmute', 'Unmute', 'размут', 'Размут', 'разглушить', 'Разглушить'],
     'unmute_url': ['unmute_url', 'Unmute_url', 'размут_ссылкой', 'Размут_ссылкой', 'разглушить_ссылкой',
                    'Разглушить_ссылкой'],
+
+    'remove_from_queue': ['remove_from_queue', 'Remove_from_queue'],
+    'remove_from_queue_url': ['remove_from_queue_url', 'Remove_from_queue_url']
 
 }
 
