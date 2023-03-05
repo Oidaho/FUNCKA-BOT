@@ -924,3 +924,78 @@ async def log_system_warn_removed(peer_id, user_id):
         message=title,
         random_id=0
     )
+
+
+async def log_removed_from_queue(message: Message, user_info):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    author_permission = DBtools.get_permission(message, message.from_id)
+    author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
+    if author_permission == 1:
+        author_permission = 'Модератор'
+
+    elif author_permission == 2:
+        author_permission = 'Администратор'
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    epoch = int(time.time())
+
+    offset = datetime.timedelta(hours=3)
+    tz = datetime.timezone(offset, name='МСК')
+
+    Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
+
+    title = f'@id{author_id} ({author_permission}) ({author_info[0].first_name} {author_info[0].last_name})' \
+            f'удалил из очереди задержки' \
+            f'@id{user_info[0].id} (пользователя) ({user_info[0].first_name} {user_info[0].last_name})\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        random_id=0
+    )
+
+
+async def log_removed_from_queue_url(message: Message, user_info):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    author_permission = DBtools.get_permission(message, message.from_id)
+    author_id = message.from_id
+    author_info = await bot.api.users.get(author_id)
+
+    if author_permission == 1:
+        author_permission = 'Модератор'
+
+    elif author_permission == 2:
+        author_permission = 'Администратор'
+
+    conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+    conversations_name = conversations_info.items[0].chat_settings.title
+
+    epoch = int(time.time())
+
+    offset = datetime.timedelta(hours=3)
+    tz = datetime.timezone(offset, name='МСК')
+
+    Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
+
+    title = f'@id{author_id} ({author_permission}) ({author_info[0].first_name} {author_info[0].last_name})' \
+            f'удалил из очереди задержки ' \
+            f'@id{user_info[0].id} (пользователя) ({user_info[0].first_name} {user_info[0].last_name})' \
+            f', используя ссылку\n' \
+            f'Источник: {conversations_name}\n' \
+            f'Время (МСК): {Moscow_time}'
+
+    await bot.api.messages.send(
+        group_id=GROUP,
+        peer_id=LOG_PEER,
+        message=title,
+        random_id=0
+    )
