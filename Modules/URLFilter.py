@@ -1,3 +1,6 @@
+import datetime
+import time
+
 from vkbottle.bot import Bot, BotLabeler, Message
 from Log import Logger as ol
 from urlextract import URLExtract
@@ -65,11 +68,20 @@ async def check_URL(message: Message):
 
                 reason = 'Внешние ссылки'
 
+                epoch = int(time.time()) + (24 * 60 * 60 * 1)
+
+                offset = datetime.timedelta(hours=3)
+                tz = datetime.timezone(offset, name='МСК')
+
+                Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
+
                 await ol.log_system_muted(message, mute_users_info, time_value, time_type, reason)
 
                 title = f'Подозрительная активность @id{mute_users_info[0].id} (участника) (Внешние ссылки)\n'\
                         f'@id{mute_users_info[0].id} (Пользователь) ' \
-                        f'был заглушен на {time_value} {time_type} в целях безопасности.'
+                        f'был заглушен на {time_value} {time_type} в целях безопасности\n' \
+                        f'Заглушение будет снято: {Moscow_time}'
+
                 await message.answer(title)
 
                 DBtools.add_mute(message, message.from_id, time_value, time_type)
