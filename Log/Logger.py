@@ -999,3 +999,32 @@ async def log_removed_from_queue_url(message: Message, user_info):
         message=title,
         random_id=0
     )
+
+
+async def log_system_permission_changed(message: Message, users_info, permission_lvl):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    if LOG_PEER != 0:
+        conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+        conversations_name = conversations_info.items[0].chat_settings.title
+
+        epoch = int(time.time())
+
+        offset = datetime.timedelta(hours=3)
+        tz = datetime.timezone(offset, name='МСК')
+
+        Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
+
+        title = f'Система ' \
+                f'изменила группу прав для ' \
+                f'данного @id{users_info[0].id} (пользователя) ({users_info[0].first_name} {users_info[0].last_name}) ' \
+                f'на {permission_lvl} уровень ({PERMISSION_LVL[str(permission_lvl)]})\n' \
+                f'Источник: {conversations_name}\n' \
+                f'Время (МСК): {Moscow_time}'
+
+        await bot.api.messages.send(
+            group_id=GROUP,
+            peer_id=LOG_PEER,
+            message=title,
+            random_id=0
+        )
