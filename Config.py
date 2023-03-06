@@ -59,6 +59,7 @@ ALIASES = {
 
     'set_permission': ['set_permission', 'Set_permission'],
     'set_permission_url': ['set_permission_url', 'Set_permission_url'],
+    'get_permission': ['get_permission', 'Get_permission'],
 
     'mute': ['mute', 'Mute'],
     'mute_url': ['mute_url', 'Mute_url'],
