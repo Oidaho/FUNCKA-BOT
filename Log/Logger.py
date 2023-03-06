@@ -986,7 +986,7 @@ async def log_removed_from_queue_url(message: Message, user_info):
 
     Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
 
-    title = f'@id{author_id} ({author_permission}) ({author_info[0].first_name} {author_info[0].last_name})' \
+    title = f'@id{author_id} ({author_permission}) ({author_info[0].first_name} {author_info[0].last_name}) ' \
             f'удалил из очереди задержки ' \
             f'@id{user_info[0].id} (пользователя) ({user_info[0].first_name} {user_info[0].last_name})' \
             f', используя ссылку\n' \
