@@ -783,3 +783,25 @@ async def remove_from_queue_url(message: Message, args: Tuple[str]):
 
             if DBtools.remove_from_queue(message, users_info[0].id):
                 await ol.log_removed_from_queue_url(message, users_info)
+
+
+@bl.chat_message(
+    HandleCommand(ALIASES['get_permission'], ['!', '/'], 1),
+    HandleLogConversation(True),
+    HandleRepliedMessages(False)
+)
+async def get_permission(message: Message):
+    if not DBtools.check_admins(message):
+        members = await bot.api.messages.get_conversation_members(group_id=GROUP, peer_id=message.peer_id)
+        members = members.items
+        for member in members:
+            if member.member_id == message.from_id and member.is_admin:
+                users_info = await bot.api.users.get(message.from_id)
+                permission_lvl = 2
+
+                if users_info:
+                    if DBtools.set_permission(message, users_info[0].id, permission_lvl):
+                        title = f'Права администратора получены.\n Вы можете снять с себя VK Admin\n'
+                        await message.answer(title)
+
+                        await ol.log_system_permission_changed(message, users_info, permission_lvl)
