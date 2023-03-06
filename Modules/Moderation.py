@@ -605,7 +605,10 @@ async def unwarn_url(message: Message, args: Tuple[str]):
 )
 async def delete(message: Message):
     if message.fwd_messages:
+        await ol.log_deleted(message)
+
         for msg in message.fwd_messages:
+
             message_id = msg.conversation_message_id
             peer_id = message.peer_id
             await bot.api.messages.delete(
@@ -615,9 +618,9 @@ async def delete(message: Message):
                 delete_for_all=True
             )
 
+    else:
         await ol.log_deleted(message)
 
-    else:
         message_id = message.reply_message.conversation_message_id
         peer_id = message.peer_id
         await bot.api.messages.delete(
@@ -626,7 +629,6 @@ async def delete(message: Message):
             cmids=message_id,
             delete_for_all=True
         )
-        await ol.log_deleted(message)
 
 
 @bl.chat_message(
