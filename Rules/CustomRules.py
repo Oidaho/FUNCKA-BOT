@@ -92,12 +92,6 @@ class PermissionAccess(ABCRule[BaseMessageMin]):
         self.accessed_lvl = accessed_lvl or STANDARD_PERMISSION
 
     async def check(self, message: BaseMessageMin) -> bool:
-        members = await bot.api.messages.get_conversation_members(group_id=GROUP, peer_id=message.peer_id)
-        members = members.items
-        for member in members:
-            if member.member_id == message.from_id and member.is_admin:
-                return True
-
         user_permission = DBtools.get_permission(message, message.from_id)
 
         if user_permission >= self.accessed_lvl:
