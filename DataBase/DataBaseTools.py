@@ -700,3 +700,17 @@ def remove_from_queue(message: Message, user_id: int):
                 place += 1
 
     return False
+
+
+def check_admins(message: Message):
+    with open("DataBase/DB.json", "r") as read_file:
+        database = json.load(read_file)
+
+    for conversation in database['Conversations']:
+        if conversation['PeerID'] == message.peer_id:
+            if not conversation['Permissions']['Administrators']:
+                return False
+
+            return True
+
+    return True
