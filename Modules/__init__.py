@@ -3,11 +3,13 @@ from . import (
     MessageQueueHandler,
     Moderation,
     ConversationRegistrator,
-    URLFilter
+    URLFilter,
+    AccAgeChecker
 )
 
 labelers = [
     ConversationRegistrator.bl,
+    AccAgeChecker.bl,
     MessageQueueHandler.bl,
     Moderation.bl,
     ForbiddenFilter.bl,
