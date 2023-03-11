@@ -33,7 +33,7 @@ async def check_age(message: Message):
         delta = n - aca
         delta_seconds = int(delta.total_seconds())
 
-        week = 60 * 60 * 24 * 10 * 6
+        week = 60 * 60 * 24 * 7
 
         if delta_seconds < week:
 
