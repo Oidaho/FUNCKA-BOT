@@ -786,7 +786,7 @@ async def remove_from_queue_url(message: Message, args: Tuple[str]):
 
 
 @bl.chat_message(
-    HandleCommand(ALIASES['get_permission'], ['!', '/'], 1),
+    HandleCommand(ALIASES['get_permission'], ['!', '/'], 0),
     HandleLogConversation(True),
     HandleRepliedMessages(False)
 )
