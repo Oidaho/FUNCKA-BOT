@@ -50,6 +50,7 @@ class HandleCommand(ABCRule[BaseMessageMin]):
                                 cmids=message.conversation_message_id,
                                 delete_for_all=True
                             )
+                            message.deleted = True
                         except Exception:
                             pass
 
@@ -65,6 +66,7 @@ class HandleCommand(ABCRule[BaseMessageMin]):
                                     cmids=message.conversation_message_id,
                                     delete_for_all=True
                                 )
+                                message.deleted = True
                             except Exception:
                                 pass
 
@@ -79,6 +81,7 @@ class HandleCommand(ABCRule[BaseMessageMin]):
                                     cmids=message.conversation_message_id,
                                     delete_for_all=True
                                 )
+                                message.deleted = True
                             except Exception:
                                 pass
 
