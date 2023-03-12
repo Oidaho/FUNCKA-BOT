@@ -805,3 +805,16 @@ async def get_permission(message: Message):
                         await message.answer(title)
 
                         await ol.log_system_permission_changed(message, users_info, permission_lvl)
+
+
+@bl.chat_message(
+    HandleCommand(ALIASES['msg_copy'], ['!', '/'], 0),
+    PermissionAccess(2),
+    HandleLogConversation(False),
+    HandleRepliedMessages(True)
+)
+async def msg_copy(message: Message):
+    if not message.fwd_messages:
+        title = message.text
+        await message.answer(title)
+        await ol.log_msg_copied(message)
