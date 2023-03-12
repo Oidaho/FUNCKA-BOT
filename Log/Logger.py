@@ -1028,3 +1028,45 @@ async def log_system_permission_changed(message: Message, users_info, permission
             message=title,
             random_id=0
         )
+
+
+async def log_msg_copied(message: Message):
+    LOG_PEER = DBtools.get_log_conversation()
+
+    if LOG_PEER != 0:
+        author_permission = DBtools.get_permission(message, message.from_id)
+        author_id = message.from_id
+        author_info = await bot.api.users.get(author_id)
+
+        if author_permission == 1:
+            author_permission = 'Модератор'
+
+        elif author_permission == 2:
+            author_permission = 'Администратор'
+
+        conversations_info = await bot.api.messages.get_conversations_by_id(group_id=GROUP, peer_ids=message.peer_id)
+        conversations_name = conversations_info.items[0].chat_settings.title
+
+        epoch = int(time.time())
+
+        offset = datetime.timedelta(hours=3)
+        tz = datetime.timezone(offset, name='МСК')
+
+        Moscow_time = str(datetime.datetime.fromtimestamp(epoch, tz=tz)).split('+')[0]
+
+        title = f'@id{author_id} ({author_permission}) ({author_info[0].first_name} {author_info[0].last_name}) ' \
+                f'скопировал сообщение\n ' \
+                f'Источник: {conversations_name}\n' \
+                f'Время (МСК): {Moscow_time}'
+        forward = {
+            'peer_id': message.peer_id,
+            'conversation_message_ids': [message.reply_message.conversation_message_id],
+        }
+        forward = json.dumps(forward)
+        await bot.api.messages.send(
+            group_id=GROUP,
+            peer_id=LOG_PEER,
+            message=title,
+            forward=forward,
+            random_id=0
+        )
