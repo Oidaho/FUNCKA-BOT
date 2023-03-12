@@ -815,6 +815,6 @@ async def get_permission(message: Message):
 )
 async def msg_copy(message: Message):
     if not message.fwd_messages:
-        title = message.text
+        title = message.reply_message.text
         await message.answer(title)
         await ol.log_msg_copied(message)
