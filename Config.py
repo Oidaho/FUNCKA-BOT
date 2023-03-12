@@ -56,6 +56,7 @@ ALIASES = {
     'set_cooldown': ['set_cooldown', 'Set_cooldown'],
     'set_log_conversation': ['set_log_conversation', 'Set_log_conversation'],
     'change_setting': ['change_setting', 'Change_setting'],
+    'msg_copy': ['msg_copy', 'Msg_copy'],
 
     'set_permission': ['set_permission', 'Set_permission'],
     'set_permission_url': ['set_permission_url', 'Set_permission_url'],
