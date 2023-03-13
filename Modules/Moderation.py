@@ -772,10 +772,10 @@ async def remove_from_queue_url(message: Message, args: Tuple[str]):
     if extractor.has_urls(args[0]):
         shortname = ''
 
-        if args[1].startswith('https://vk.com/id'):
+        if args[0].startswith('https://vk.com/id'):
             shortname = int(args[0].replace('https://vk.com/id', ''))
 
-        elif args[1].startswith('https://vk.com/'):
+        elif args[0].startswith('https://vk.com/'):
             shortname = args[0].replace('https://vk.com/', '')
 
         if shortname != '':
